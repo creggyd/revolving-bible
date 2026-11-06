@@ -94,9 +94,24 @@
     let passages = [];
     let rotationStart = 0;
     let rotationInterval = 60;
-
+    let serverTimeOffset = 0;
     async function loadBiblePassages() {
       try {
+           const requestStartedAt = Date.now();
+
+const { data: serverTimeData, error: serverTimeError } =
+    await supabaseClient.rpc("get_server_time");
+
+const requestFinishedAt = Date.now();
+
+if (serverTimeError) throw serverTimeError;
+
+const serverTime = new Date(serverTimeData).getTime();
+
+const clientMidpoint =
+    (requestStartedAt + requestFinishedAt) / 2;
+
+serverTimeOffset = serverTime - clientMidpoint; 
         const { data: bibleData, error: bibleError } =
           await supabaseClient
             .from("bible_passages")
@@ -142,8 +157,10 @@
     }
 
     function getCurrentIndex() {
-      const elapsedSeconds =
-        Math.max(0, Math.floor((Date.now() - rotationStart) / 1000));
+     const currentServerTime = Date.now() + serverTimeOffset;
+
+     const elapsedSeconds =
+    Math.max(0, Math.floor((currentServerTime - rotationStart) / 1000));
 
       const rotationNumber =
         Math.floor(elapsedSeconds / rotationInterval);
@@ -179,8 +196,10 @@
     function updateCountdown() {
       if (passages.length === 0) return;
 
-      const elapsedSeconds =
-        Math.max(0, Math.floor((Date.now() - rotationStart) / 1000));
+     const currentServerTime = Date.now() + serverTimeOffset;
+
+     const elapsedSeconds =
+     Math.max(0, Math.floor((currentServerTime - rotationStart) / 1000));
 
       const secondsIntoCycle =
         elapsedSeconds % rotationInterval;
