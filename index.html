@@ -1,27 +1,203 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Revolving Bible</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Today's Word | Revolving Bible</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
-    body {
-      background: #132f25;
-      color: white;
-      font-family: Georgia, serif;
-      text-align: center;
-      padding: 60px 20px;
+    * {
+      box-sizing: border-box;
     }
-    h1 { color: #e5d6a2; }
-    p { font-size: 24px; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #102d25;
+      color: #ffffff;
+      font-family: Georgia, serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    h1 {
+      color: #e3c77b;
+      font-size: clamp(30px, 5vw, 52px);
+      margin-bottom: 45px;
+    }
+
+    #passage {
+      font-size: clamp(27px, 4vw, 48px);
+      line-height: 1.5;
+      margin: 30px auto;
+    }
+
+    #reference {
+      color: #e3c77b;
+      font-size: clamp(21px, 3vw, 30px);
+      margin-top: 30px;
+    }
+
+    #countdown {
+      margin-top: 45px;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      color: #d2ded8;
+    }
+
+    #status {
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      color: #d2ded8;
+      margin-top: 25px;
+    }
   </style>
 </head>
+
 <body>
-  <h1>Revolving Bible</h1>
-  <p>Your website is working!</p>
-  <p>“Be still, and know that I am God.”</p>
-  <p>Psalm 46:10</p>
+
+  <main class="container">
+    <h1>Today's Word</h1>
+
+    <div id="passage">Loading Scripture...</div>
+
+    <div id="reference"></div>
+
+    <div id="countdown"></div>
+
+    <div id="status">Connecting to Bible database...</div>
+  </main>
+
+  <script>
+    // SUPABASE CONNECTION
+    const SUPABASE_URL =
+      "https://tthgeaiokpltmfxxmibb.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    let passages = [];
+    let rotationStart = 0;
+    let rotationInterval = 60;
+
+    async function loadBiblePassages() {
+      try {
+        const { data: bibleData, error: bibleError } =
+          await supabaseClient
+            .from("bible_passages")
+            .select("*")
+            .eq("active", true)
+            .order("id", { ascending: true });
+
+        if (bibleError) throw bibleError;
+
+        const { data: settings, error: settingsError } =
+          await supabaseClient
+            .from("rotation_settings")
+            .select("*")
+            .eq("id", 1)
+            .single();
+
+        if (settingsError) throw settingsError;
+
+        if (!bibleData || bibleData.length === 0) {
+          throw new Error("No active Bible passages were found.");
+        }
+
+        passages = bibleData;
+        rotationInterval = settings.rotation_interval_seconds;
+        rotationStart = new Date(
+          settings.rotation_start_at
+        ).getTime();
+
+        document.getElementById("status").textContent =
+          passages.length + " KJV passages loaded successfully.";
+
+        displayCurrentPassage();
+        updateCountdown();
+
+        setInterval(updateCountdown, 1000);
+
+      } catch (error) {
+        console.error(error);
+
+        document.getElementById("status").textContent =
+          "Unable to load Scripture. Please check your database connection.";
+      }
+    }
+
+    function getCurrentIndex() {
+      const elapsedSeconds =
+        Math.max(0, Math.floor((Date.now() - rotationStart) / 1000));
+
+      const rotationNumber =
+        Math.floor(elapsedSeconds / rotationInterval);
+
+      return rotationNumber % passages.length;
+    }
+
+    function displayCurrentPassage() {
+      if (passages.length === 0) return;
+
+      const currentIndex = getCurrentIndex();
+      const passage = passages[currentIndex];
+
+      document.getElementById("passage").textContent =
+        passage.passage_text;
+
+      let reference =
+        passage.book + " " +
+        passage.chapter + ":" +
+        passage.verse_start;
+
+      if (
+        passage.verse_end &&
+        passage.verse_end !== passage.verse_start
+      ) {
+        reference += "-" + passage.verse_end;
+      }
+
+      document.getElementById("reference").textContent =
+        reference + " (KJV)";
+    }
+
+    function updateCountdown() {
+      if (passages.length === 0) return;
+
+      const elapsedSeconds =
+        Math.max(0, Math.floor((Date.now() - rotationStart) / 1000));
+
+      const secondsIntoCycle =
+        elapsedSeconds % rotationInterval;
+
+      const secondsRemaining =
+        rotationInterval - secondsIntoCycle;
+
+      document.getElementById("countdown").textContent =
+        "Next Scripture in " + secondsRemaining + " seconds";
+
+      if (secondsRemaining === rotationInterval) {
+        displayCurrentPassage();
+      }
+    }
+
+    loadBiblePassages();
+  </script>
+
 </body>
 </html>
-
