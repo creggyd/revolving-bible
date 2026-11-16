@@ -108,7 +108,14 @@
     <button id="resumeAudio" onclick="resumeScripture()">▶ Resume</button>
     <button id="stopAudio" onclick="stopScripture()">■ Stop</button>
 </div>
-
+<label id="autoNarrationOption">
+    <input
+        type="checkbox"
+        id="autoNarration"
+        onchange="toggleAutomaticNarration(this.checked)"
+    >
+    Automatically read each new Scripture
+</label>
 <div id="audioStatus" role="status" aria-live="polite"></div>
 
 <div id="countdown"></div>
@@ -229,6 +236,9 @@ serverTimeOffset = serverTime - clientMidpoint;
 
       document.getElementById("reference").textContent =
         reference + " (KJV)";
+      if (automaticNarrationEnabled) {
+    playScripture();
+}
     }
 
     function updateCountdown() {
@@ -254,7 +264,20 @@ serverTimeOffset = serverTime - clientMidpoint;
     }
 
     loadBiblePassages();
-    
+    let automaticNarrationEnabled = false;
+
+function toggleAutomaticNarration(enabled) {
+    automaticNarrationEnabled = enabled;
+
+    if (!enabled) {
+        document.getElementById("audioStatus").textContent =
+            "Automatic Scripture reading is off.";
+        return;
+    }
+
+    document.getElementById("audioStatus").textContent =
+        "Automatic Scripture reading is on.";
+}
 let scriptureSpeech = null;
 
 function playScripture() {
