@@ -60,6 +60,35 @@
       font-size: 15px;
       color: #d2ded8;
       margin-top: 25px;
+      #audio-controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+#audio-controls button {
+    padding: 12px 18px;
+    border: 1px solid #e3c77b;
+    border-radius: 8px;
+    background: #e3c77b;
+    color: #102d25;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#audio-controls button:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 3px;
+}
+
+#audioStatus {
+    margin-top: 12px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #d2ded8;
+}
     }
   </style>
 </head>
@@ -69,11 +98,20 @@
   <main class="container">
     <h1>Today's Word</h1>
 
-    <div id="passage">Loading Scripture...</div>
+   <div id="passage">Loading Scripture...</div>
 
-    <div id="reference"></div>
+<div id="reference"></div>
 
-    <div id="countdown"></div>
+<div id="audio-controls">
+    <button id="playAudio" onclick="playScripture()">▶ Play Scripture</button>
+    <button id="pauseAudio" onclick="pauseScripture()">⏸ Pause</button>
+    <button id="resumeAudio" onclick="resumeScripture()">▶ Resume</button>
+    <button id="stopAudio" onclick="stopScripture()">■ Stop</button>
+</div>
+
+<div id="audioStatus" role="status" aria-live="polite"></div>
+
+<div id="countdown"></div>
 
     <div id="status">Connecting to Bible database...</div>
   </main>
@@ -216,6 +254,64 @@ serverTimeOffset = serverTime - clientMidpoint;
     }
 
     loadBiblePassages();
+    
+let scriptureSpeech = null;
+
+function playScripture() {
+    if (!("speechSynthesis" in window)) {
+        document.getElementById("audioStatus").textContent =
+            "Audio narration is not supported by this browser.";
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const passage = document.getElementById("passage").innerText;
+    const reference = document.getElementById("reference").innerText;
+
+    scriptureSpeech = new SpeechSynthesisUtterance(
+        reference + ". " + passage
+    );
+
+    scriptureSpeech.lang = "en-US";
+    scriptureSpeech.rate = 0.85;
+
+    scriptureSpeech.onstart = function () {
+        document.getElementById("audioStatus").textContent =
+            "Reading Scripture...";
+    };
+
+    scriptureSpeech.onend = function () {
+        document.getElementById("audioStatus").textContent =
+            "Scripture reading completed.";
+    };
+
+    scriptureSpeech.onerror = function () {
+        document.getElementById("audioStatus").textContent =
+            "Audio playback encountered a problem.";
+    };
+
+    window.speechSynthesis.speak(scriptureSpeech);
+}
+
+function pauseScripture() {
+    window.speechSynthesis.pause();
+    document.getElementById("audioStatus").textContent =
+        "Scripture reading paused.";
+}
+
+function resumeScripture() {
+    window.speechSynthesis.resume();
+    document.getElementById("audioStatus").textContent =
+        "Resuming Scripture reading...";
+}
+
+function stopScripture() {
+    window.speechSynthesis.cancel();
+    document.getElementById("audioStatus").textContent =
+        "Scripture reading stopped.";
+}
+
   </script>
 
 </body>
