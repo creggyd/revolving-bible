@@ -279,3 +279,92 @@ Compliance with WCAG 2.2 Level AA must not be claimed until an appropriate asses
 **Status:** Product design and accessibility planning document
 
 **Review frequency:** During major interface changes and before commercial release.
+
+
+## Additional Accessibility and Audio Narration Requirements
+
+### 1. Purpose
+
+Revolving Bible must be accessible to people with visual impairments and other accessibility needs. Accessibility is a core product requirement, not an optional enhancement.
+
+### 2. Visual Accessibility
+
+The application must provide:
+
+- Adjustable Scripture text sizes, including an extra-large option.
+- Clear, readable fonts.
+- High-contrast display options.
+- Light and dark display themes.
+- Responsive layouts for phones, tablets, computers and church screens.
+- Accessible Scripture presentation on the QR-code page.
+- Text and controls that remain readable without relying solely on colour.
+
+### 3. Screen Reader Compatibility
+
+The application must support assistive technologies, including:
+
+- Apple VoiceOver.
+- Android TalkBack.
+- Appropriate screen-reader labels for buttons, menus and controls.
+- Logical navigation and reading order.
+- Clear announcements when the displayed Scripture changes, without repeatedly interrupting users.
+
+Voice-assisted navigation may be introduced in a later development phase.
+
+### 4. Audio Scripture Playback
+
+Users must have two playback options:
+
+**Manual playback**
+- Users can select Play to hear the current Scripture.
+- Users can pause, resume and stop playback.
+- Users should be able to replay the passage.
+
+**Optional automatic playback**
+- Users may enable automatic narration when a new Scripture appears.
+- Automatic playback must be OFF by default.
+- Users must be able to disable automatic narration easily.
+- Church administrators must be able to control whether automatic narration is permitted on church displays.
+- Audio must not unexpectedly interrupt church services or interfere with screen readers.
+
+### 5. Custom Voice Narration
+
+Revolving Bible should support an optional narration voice created from the project owner's own voice recordings, subject to the user's explicit consent and the selected provider's terms.
+
+Requirements include:
+
+- Preserve the natural character and clarity of the owner's voice.
+- Provide accurate pronunciation of Bible books, names and Scripture references.
+- Allow approved narration recordings to be stored and reused.
+- Prefer generating and caching approved audio where practical, rather than generating every passage repeatedly.
+- Protect original voice recordings and generated voice data.
+- Review third-party provider privacy, security, commercial-use and licensing terms before integration.
+- Maintain the ability to change narration providers without redesigning the entire application.
+
+The application should initially support a practical narration implementation while allowing custom voice narration to be introduced and improved as development progresses.
+
+### 6. Accessibility Standards and Testing
+
+The product should target WCAG 2.2 Level AA accessibility requirements.
+
+Testing must include:
+
+- Text resizing and contrast checks.
+- Keyboard navigation.
+- VoiceOver and TalkBack testing.
+- Audio playback and control testing.
+- Testing on phones, tablets and church display screens.
+- Feedback from people with visual impairments before public release.
+
+### 7. Accessibility Acceptance Requirements
+
+Accessibility features will not be considered complete until users can:
+
+1. Increase Scripture text to a comfortable reading size.
+2. use the application with a supported screen reader.
+3. Hear Scripture through manual audio playback.
+4. Enable or disable automatic narration.
+5. Pause, resume and stop audio playback.
+6. Use the QR Scripture page with accessibility tools.
+
+These requirements apply to the individual application, church edition, administration interfaces and QR Scripture experience where relevant.
