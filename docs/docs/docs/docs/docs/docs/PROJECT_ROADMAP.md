@@ -330,3 +330,44 @@ The application should remain simple to use while providing the security, reliab
 **End of Document**
 
 **Revolving Bible Project — Project Development Roadmap**
+
+## Accessibility and Custom Voice Narration Development Milestones
+
+Accessibility and audio narration are core product requirements and must be incorporated into the development lifecycle.
+
+### Phase 1 — Accessible Scripture Display
+
+- Implement adjustable Scripture text sizes, including an extra-large setting.
+- Introduce high-contrast, light and dark display options.
+- Ensure the rotating Scripture display works with screen readers.
+- Improve accessibility on mobile phones, tablets and church display screens.
+- Ensure the QR Scripture page is accessible.
+
+### Phase 2 — Basic Audio Scripture Playback
+
+- Introduce Play, Pause, Resume and Stop controls.
+- Allow users to manually listen to the currently displayed Scripture.
+- Support optional automatic narration when a new Scripture appears.
+- Keep automatic playback disabled by default.
+- Ensure audio settings can be controlled independently for personal devices and church displays.
+
+### Phase 3 — Custom Voice Narration
+
+- Record and obtain the project owner's explicit approval to use his voice.
+- Evaluate suitable voice-cloning and narration providers.
+- Test pronunciation of KJV Scripture passages, Bible names and references.
+- Generate and cache approved audio recordings where practical.
+- Protect original voice recordings and generated voice data.
+- Review provider privacy, security, licensing and commercial-use terms before integration.
+
+### Phase 4 — Accessibility Validation
+
+- Test compatibility with Apple VoiceOver and Android TalkBack.
+- Conduct keyboard navigation and contrast testing.
+- Test audio controls and automatic narration settings.
+- Target WCAG 2.2 Level AA.
+- Obtain feedback from blind and low-vision users before public release.
+
+### Development Principle
+
+Accessibility must be considered during design, development and quality assurance, rather than added only after the main application is completed. Custom voice narration should be introduced progressively, with reliable basic audio playback available first.
