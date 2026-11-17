@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Church Display | Revolving Bible</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100svh;
+      background:
+        radial-gradient(ellipse at center, #1b4939 0%, #102d25 65%, #091d18 100%);
+      color: #ffffff;
+      font-family: Georgia, "Times New Roman", serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: clamp(20px, 4vw, 60px);
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1500px;
+      margin: auto;
+    }
+
+    .brand-logo {
+      display: block;
+      width: min(38vw, 390px);
+      max-height: 220px;
+      height: auto;
+      object-fit: contain;
+      margin: 0 auto 15px;
+    }
+
+    .display-heading {
+      color: #e3c77b;
+      font-size: clamp(25px, 3vw, 42px);
+      font-weight: normal;
+      letter-spacing: 2px;
+      margin: 10px 0 35px;
+    }
+
+    #passage {
+      max-width: 1350px;
+      margin: 0 auto;
+      font-size: clamp(30px, 4.2vw, 66px);
+      line-height: 1.45;
+      font-weight: normal;
+      text-wrap: balance;
+    }
+
+    .gold-divider {
+      width: min(220px, 35%);
+      height: 2px;
+      margin: 35px auto 25px;
+      background: linear-gradient(
+        to right,
+        transparent,
+        #e3c77b,
+        transparent
+      );
+    }
+
+    #reference {
+      color: #e3c77b;
+      font-size: clamp(22px, 2.5vw, 34px);
+      letter-spacing: 1px;
+      margin-top: 15px;
+    }
+
+    #status {
+      margin-top: 35px;
+      color: #c5d4cc;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+
+    .fullscreen-button {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      padding: 10px 16px;
+      border: 1px solid rgba(227, 199, 123, 0.65);
+      border-radius: 6px;
+      background: rgba(9, 29, 24, 0.75);
+      color: #e3c77b;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .fullscreen-button:hover {
+      background: #e3c77b;
+      color: #102d25;
+    }
+
+    .fullscreen-button:focus-visible {
+      outline: 3px solid white;
+      outline-offset: 3px;
+    }
+
+    body:fullscreen .fullscreen-button {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .brand-logo {
+        width: min(65vw, 280px);
+        margin-bottom: 10px;
+      }
+
+      .display-heading {
+        margin-bottom: 25px;
+      }
+
+      #passage {
+        line-height: 1.4;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <button
+    class="fullscreen-button"
+    id="fullscreenButton"
+    type="button"
+  >
+    Enter Full Screen
+  </button>
+
+  <main class="container">
+
+    <img
+      src="assets/revolving-bible-logo.png"
+      alt="Revolving Bible"
+      class="brand-logo"
+    >
+
+    <h1 class="display-heading">A Moment in Scripture</h1>
+
+    <div id="passage" aria-live="polite">
+      Preparing Scripture display...
+    </div>
+
+    <div class="gold-divider"></div>
+
+    <div id="reference"></div>
+
+    <div id="status" role="status" aria-live="polite">
+      Connecting to the Bible database...
+    </div>
+
+  </main>
+
+  <script>
+    // SUPABASE CONNECTION
+
+    const SUPABASE_URL =
+      "https://tthgeaiokpltmfxxmibb.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    let passages = [];
+    let rotationStart = 0;
+    let rotationInterval = 60;
+    let serverTimeOffset = 0;
+    let lastDisplayedIndex = -1;
+
+    // LOAD PASSAGES AND ROTATION SETTINGS
+
+    async function loadChurchDisplay() {
+      const status = document.getElementById("status");
+
+      try {
+        const requestStartedAt = Date.now();
+
+        const {
+          data: serverTimeData,
+          error: serverTimeError
+        } = await supabaseClient.rpc("get_server_time");
+
+        const requestFinishedAt = Date.now();
+
+        if (serverTimeError) {
+          throw serverTimeError;
+        }
+
+        const serverTime = new Date(serverTimeData).getTime();
+
+        if (!Number.isFinite(serverTime)) {
+          throw new Error("Unable to read database server time.");
+        }
+
+        const clientMidpoint =
+          (requestStartedAt + requestFinishedAt) / 2;
+
+        serverTimeOffset = serverTime - clientMidpoint;
+
+        // Retrieve active Bible passages
+
+        const {
+          data: bibleData,
+          error: bibleError
+        } = await supabaseClient
+          .from("bible_passages")
+          .select("*")
+          .eq("active", true)
+          .order("id", { ascending: true });
+
+        if (bibleError) {
+          throw bibleError;
+        }
+
+        // Retrieve rotation settings
+
+        const {
+          data: settings,
+          error: settingsError
+        } = await supabaseClient
+          .from("rotation_settings")
+          .select("*")
+          .eq("id", 1)
+          .single();
+
+        if (settingsError) {
+          throw settingsError;
+        }
+
+        if (!bibleData || bibleData.length === 0) {
+          throw new Error("No active Bible passages were found.");
+        }
+
+        passages = bibleData;
+
+        rotationInterval =
+          Number(settings.rotation_interval_seconds);
+
+        rotationStart =
+          new Date(settings.rotation_start_at).getTime();
+
+        if (
+          !Number.isFinite(rotationInterval) ||
+          rotationInterval <= 0 ||
+          !Number.isFinite(rotationStart)
+        ) {
+          throw new Error("Invalid rotation settings.");
+        }
+
+        lastDisplayedIndex = -1;
+
+        status.textContent =
+          passages.length + " KJV passages loaded successfully.";
+
+        updateChurchDisplay();
+
+        // Check the rotation every second.
+
+        setInterval(updateChurchDisplay, 1000);
+
+        // Refresh settings and server time periodically.
+
+        setInterval(refreshRotationSettings, 300000);
+
+      } catch (error) {
+        console.error("Church display error:", error);
+
+        status.textContent =
+          "Unable to load Scripture. Please check the database connection.";
+      }
+    }
+
+    // CALCULATE THE CURRENT PASSAGE
+
+    function getCurrentIndex() {
+      if (passages.length === 0) {
+        return -1;
+      }
+
+      const currentServerTime =
+        Date.now() + serverTimeOffset;
+
+      const elapsedSeconds = Math.max(
+        0,
+        Math.floor(
+          (currentServerTime - rotationStart) / 1000
+        )
+      );
+
+      const rotationNumber = Math.floor(
+        elapsedSeconds / rotationInterval
+      );
+
+      return rotationNumber % passages.length;
+    }
+
+    // DISPLAY THE CURRENT PASSAGE
+
+    function updateChurchDisplay() {
+      if (passages.length === 0) {
+        return;
+      }
+
+      const currentIndex = getCurrentIndex();
+
+      if (
+        currentIndex < 0 ||
+        currentIndex === lastDisplayedIndex
+      ) {
+        return;
+      }
+
+      const passage = passages[currentIndex];
+
+      document.getElementById("passage").textContent =
+        passage.passage_text;
+
+      let reference =
+        passage.book + " " +
+        passage.chapter + ":" +
+        passage.verse_start;
+
+      if (
+        passage.verse_end &&
+        passage.verse_end !== passage.verse_start
+      ) {
+        reference += "-" + passage.verse_end;
+      }
+
+      document.getElementById("reference").textContent =
+        reference + " (KJV)";
+
+      lastDisplayedIndex = currentIndex;
+    }
+
+    // REFRESH SERVER TIME AND ROTATION SETTINGS
+
+    async function refreshRotationSettings() {
+      try {
+        const requestStartedAt = Date.now();
+
+        const {
+          data: serverTimeData,
+          error: serverTimeError
+        } = await supabaseClient.rpc("get_server_time");
+
+        const requestFinishedAt = Date.now();
+
+        if (serverTimeError) {
+          throw serverTimeError;
+        }
+
+        const serverTime = new Date(serverTimeData).getTime();
+
+        if (!Number.isFinite(serverTime)) {
+          throw new Error("Unable to refresh server time.");
+        }
+
+        const clientMidpoint =
+          (requestStartedAt + requestFinishedAt) / 2;
+
+        serverTimeOffset = serverTime - clientMidpoint;
+
+        const {
+          data: settings,
+          error: settingsError
+        } = await supabaseClient
+          .from("rotation_settings")
+          .select("*")
+          .eq("id", 1)
+          .single();
+
+        if (settingsError) {
+          throw settingsError;
+        }
+
+        const newInterval =
+          Number(settings.rotation_interval_seconds);
+
+        const newStart =
+          new Date(settings.rotation_start_at).getTime();
+
+        if (
+          !Number.isFinite(newInterval) ||
+          newInterval <= 0 ||
+          !Number.isFinite(newStart)
+        ) {
+          throw new Error("Invalid refreshed rotation settings.");
+        }
+
+        if (
+          newInterval !== rotationInterval ||
+          newStart !== rotationStart
+        ) {
+          rotationInterval = newInterval;
+          rotationStart = newStart;
+          lastDisplayedIndex = -1;
+          updateChurchDisplay();
+        }
+
+      } catch (error) {
+        console.error("Rotation refresh error:", error);
+      }
+    }
+
+    // FULL-SCREEN DISPLAY
+
+    document
+      .getElementById("fullscreenButton")
+      .addEventListener("click", async function () {
+        try {
+          if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+          } else {
+            await document.exitFullscreen();
+          }
+        } catch (error) {
+          console.error("Full-screen mode error:", error);
+        }
+      });
+
+    // START THE DISPLAY
+
+    loadChurchDisplay();
+
+  </script>
+
+</body>
+</html>
