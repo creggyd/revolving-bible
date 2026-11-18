@@ -140,6 +140,8 @@
 
     const SUPABASE_PUBLISHABLE_KEY =
       "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
+    const CHURCH_ID =
+      "cd90c8c5-3931-4995-948b-9004dc398846";
 
     const supabaseClient = window.supabase.createClient(
       SUPABASE_URL,
@@ -179,6 +181,7 @@
           .select(
             "id, book, chapter, verse_start, verse_end, passage_text, translation, service_date, service_type, display_heading, created_at"
           )
+          .eq("church_id", CHURCH_ID)
           .order("service_date", { ascending: false })
           .order("created_at", { ascending: false })
           .limit(1)
