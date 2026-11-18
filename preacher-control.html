@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preacher Control Panel | Revolving Bible</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f3f5f1;
+      color: #26352b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      border-radius: 14px;
+      padding: 30px;
+      box-shadow: 0 5px 24px rgba(0,0,0,0.09);
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .brand img {
+      width: 180px;
+      max-width: 70%;
+      height: auto;
+    }
+
+    h1 {
+      color: #174c32;
+      text-align: center;
+      font-size: 23px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #68746b;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 16px 0 7px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #cbd3cc;
+      border-radius: 7px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 7px;
+      background: #174c32;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .secondary {
+      background: #68746b;
+    }
+
+    .message {
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 7px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: none;
+      overflow-wrap: anywhere;
+    }
+
+    .error {
+      display: block;
+      background: #fff0ef;
+      color: #9c2922;
+    }
+
+    .success {
+      display: block;
+      background: #edf7ef;
+      color: #205b32;
+    }
+
+    .account {
+      margin-top: 18px;
+      padding: 16px;
+      background: #f3f5f1;
+      border-radius: 8px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      color: #7a857c;
+      font-size: 12px;
+      margin-top: 25px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="panel">
+
+    <div class="brand">
+      <img
+        src="assets/revolving-bible-logo.png"
+        alt="Revolving Bible"
+      >
+    </div>
+
+    <h1>Preacher Control Panel</h1>
+
+    <p class="subtitle">
+      Secure church administration and Scripture reading controls
+    </p>
+
+    <section id="loginSection">
+      <form id="loginForm">
+
+        <label for="email">Email address</label>
+        <input
+          type="email"
+          id="email"
+          autocomplete="username"
+          required
+        >
+
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          autocomplete="current-password"
+          required
+        >
+
+        <button id="loginButton" type="submit">
+          Sign In
+        </button>
+
+      </form>
+    </section>
+
+    <section id="dashboardSection" class="hidden">
+
+      <div class="message success" id="welcomeMessage">
+        Access verified.
+      </div>
+
+      <div class="account">
+        <strong>Signed-in account:</strong>
+        <div id="accountEmail"></div>
+
+        <strong>Church:</strong>
+        <div id="churchName"></div>
+
+        <strong>Access role:</strong>
+        <div id="accountRole"></div>
+
+        <strong>Membership status:</strong>
+        <div>Active</div>
+      </div>
+
+      <p>
+        Your church administrator access has been verified.
+        Additional control panel functions will be added in the
+        next development stages.
+      </p>
+
+      <button id="signOutButton" class="secondary" type="button">
+        Sign Out
+      </button>
+
+    </section>
+
+    <div id="statusMessage" class="message" role="status"
+         aria-live="polite"></div>
+
+    <footer>
+      Revolving Bible Platform
+    </footer>
+
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://tthgeaiokpltmfxxmibb.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    const loginSection = document.getElementById("loginSection");
+    const dashboardSection = document.getElementById("dashboardSection");
+    const loginForm = document.getElementById("loginForm");
+    const loginButton = document.getElementById("loginButton");
+    const statusMessage = document.getElementById("statusMessage");
+
+    function showMessage(message, type) {
+      statusMessage.textContent = message;
+      statusMessage.className = "message " + type;
+    }
+
+    function clearMessage() {
+      statusMessage.textContent = "";
+      statusMessage.className = "message";
+    }
+
+    function showLogin() {
+      loginSection.classList.remove("hidden");
+      dashboardSection.classList.add("hidden");
+    }
+
+    function showDashboard(user, church, membership) {
+      document.getElementById("accountEmail").textContent =
+        user.email || "Account email unavailable";
+
+      document.getElementById("churchName").textContent =
+        church.name;
+
+      document.getElementById("accountRole").textContent =
+        membership.role.replaceAll("_", " ");
+
+      loginSection.classList.add("hidden");
+      dashboardSection.classList.remove("hidden");
+
+      clearMessage();
+    }
+
+    async function verifyChurchAccess(user) {
+      showMessage("Checking church authorisation...", "success");
+
+      const { data: membership, error: membershipError } =
+        await supabaseClient
+          .from("church_memberships")
+          .select("church_id, role, status")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .eq("role", "church_admin")
+          .maybeSingle();
+
+      if (membershipError) {
+        showLogin();
+        showMessage(
+          "We could not verify your church permissions. Please try again.",
+          "error"
+        );
+        return;
+      }
+
+      if (!membership) {
+        await supabaseClient.auth.signOut();
+        showLogin();
+        showMessage(
+          "Access denied. An active church administrator membership is required.",
+          "error"
+        );
+        return;
+      }
+
+      const { data: church, error: churchError } =
+        await supabaseClient
+          .from("churches")
+          .select("id, name")
+          .eq("id", membership.church_id)
+          .maybeSingle();
+
+      if (churchError || !church) {
+        await supabaseClient.auth.signOut();
+        showLogin();
+        showMessage(
+          "Your church record could not be verified. Please contact the platform administrator.",
+          "error"
+        );
+        return;
+      }
+
+      showDashboard(user, church, membership);
+    }
+
+    loginForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      clearMessage();
+
+      loginButton.disabled = true;
+      loginButton.textContent = "Signing in...";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
+
+      if (error) {
+        showMessage(
+          "Sign-in failed. Please check your email and password.",
+          "error"
+        );
+      } else if (data.user) {
+        await verifyChurchAccess(data.user);
+      }
+
+      loginButton.disabled = false;
+      loginButton.textContent = "Sign In";
+    });
+
+    document.getElementById("signOutButton")
+      .addEventListener("click", async function() {
+
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+          showMessage("Unable to sign out. Please try again.", "error");
+          return;
+        }
+
+        showLogin();
+        loginForm.reset();
+        showMessage("You have signed out successfully.", "success");
+      });
+
+    async function checkExistingSession() {
+      const { data, error } =
+        await supabaseClient.auth.getSession();
+
+      if (error) {
+        showMessage("Unable to check your sign-in session.", "error");
+        return;
+      }
+
+      if (data.session && data.session.user) {
+        await verifyChurchAccess(data.session.user);
+      }
+    }
+
+    checkExistingSession();
+  </script>
+
+</body>
+</html>
