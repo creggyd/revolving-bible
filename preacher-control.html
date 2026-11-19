@@ -208,6 +208,92 @@
         next development stages.
       </p>
 
+      <hr>
+
+      <h2>Scripture Reading Management</h2>
+
+      <form id="readingForm">
+
+        <label for="book">Bible Book</label>
+        <input
+          type="text"
+          id="book"
+          placeholder="e.g. Psalms"
+          required
+        >
+
+        <label for="chapter">Chapter</label>
+        <input
+          type="number"
+          id="chapter"
+          min="1"
+          required
+        >
+
+        <label for="verseStart">Starting Verse</label>
+        <input
+          type="number"
+          id="verseStart"
+          min="1"
+          required
+        >
+
+        <label for="verseEnd">Ending Verse (Optional)</label>
+        <input
+          type="number"
+          id="verseEnd"
+          min="1"
+        >
+
+        <label for="passageText">KJV Scripture Text</label>
+        <textarea
+          id="passageText"
+          rows="6"
+          required
+          style="width:100%; padding:13px; border:1px solid #cbd3cc; border-radius:7px; font-size:16px;"
+        ></textarea>
+
+        <label for="serviceDate">Service Date</label>
+        <input
+          type="date"
+          id="serviceDate"
+          required
+        >
+
+        <label for="serviceType">Service Type</label>
+        <select
+          id="serviceType"
+          required
+          style="width:100%; padding:13px; border:1px solid #cbd3cc; border-radius:7px; font-size:16px;"
+        >
+          <option value="">Select Service</option>
+          <option value="Sabbath Service">Sabbath Service</option>
+          <option value="Sunday Service">Sunday Service</option>
+          <option value="Wednesday Service">Wednesday Service</option>
+          <option value="Prayer Meeting">Prayer Meeting</option>
+          <option value="Special Service">Special Service</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label for="displayHeading">Display Heading</label>
+        <input
+          type="text"
+          id="displayHeading"
+          value="SCRIPTURE READING"
+          required
+        >
+
+        <button
+          type="submit"
+          id="publishReadingButton"
+        >
+          Publish Scripture Reading
+        </button>
+
+      </form>
+
+      <hr>
+
       <button id="signOutButton" class="secondary" type="button">
         Sign Out
       </button>
@@ -240,7 +326,7 @@
     const loginForm = document.getElementById("loginForm");
     const loginButton = document.getElementById("loginButton");
     const statusMessage = document.getElementById("statusMessage");
-
+    let activeChurchId = null;
     function showMessage(message, type) {
       statusMessage.textContent = message;
       statusMessage.className = "message " + type;
@@ -319,7 +405,7 @@
         );
         return;
       }
-
+      activeChurchId = church.id;
       showDashboard(user, church, membership);
     }
 
@@ -379,6 +465,112 @@
       if (data.session && data.session.user) {
         await verifyChurchAccess(data.session.user);
       }
+    }
+
+   
+    const readingForm = document.getElementById("readingForm");
+    const publishReadingButton =
+      document.getElementById("publishReadingButton");
+
+    if (readingForm && publishReadingButton) {
+      readingForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        clearMessage();
+
+        if (!activeChurchId) {
+          showMessage(
+            "Your church access has not been verified. Please sign in again.",
+            "error"
+          );
+          return;
+        }
+
+        const book = document.getElementById("book").value.trim();
+        const chapter = Number(
+          document.getElementById("chapter").value
+        );
+        const verseStart = Number(
+          document.getElementById("verseStart").value
+        );
+        const verseEndValue =
+          document.getElementById("verseEnd").value.trim();
+        const verseEnd = verseEndValue
+          ? Number(verseEndValue)
+          : null;
+        const passageText =
+          document.getElementById("passageText").value.trim();
+        const serviceDate =
+          document.getElementById("serviceDate").value;
+        const serviceType =
+          document.getElementById("serviceType").value;
+        const displayHeading =
+          document.getElementById("displayHeading").value.trim();
+
+        if (
+          !book ||
+          !Number.isInteger(chapter) ||
+          chapter < 1 ||
+          !Number.isInteger(verseStart) ||
+          verseStart < 1 ||
+          (verseEnd !== null &&
+            (!Number.isInteger(verseEnd) || verseEnd < verseStart)) ||
+          !passageText ||
+          !serviceDate ||
+          !serviceType ||
+          !displayHeading
+        ) {
+          showMessage(
+            "Please complete all required fields and check the Scripture reference.",
+            "error"
+          );
+          return;
+        }
+
+        publishReadingButton.disabled = true;
+        publishReadingButton.textContent = "Publishing...";
+
+        const reading = {
+          church_id: activeChurchId,
+          book: book,
+          chapter: chapter,
+          verse_start: verseStart,
+          verse_end: verseEnd,
+          passage_text: passageText,
+          translation: "KJV",
+          service_date: serviceDate,
+          service_type: serviceType,
+          display_heading: displayHeading
+        };
+
+        try {
+          const { error } = await supabaseClient
+            .from("preacher_readings")
+            .insert(reading);
+
+          if (error) throw error;
+
+          showMessage(
+            "Scripture reading published successfully.",
+            "success"
+          );
+
+          readingForm.reset();
+          document.getElementById("displayHeading").value =
+            "SCRIPTURE READING";
+
+        } catch (error) {
+          console.error("Scripture publishing error:", error);
+
+          showMessage(
+            "Unable to publish the Scripture reading. Please check your details and try again.",
+            "error"
+          );
+        } finally {
+          publishReadingButton.disabled = false;
+          publishReadingButton.textContent =
+            "Publish Scripture Reading";
+        }
+      });
     }
 
     checkExistingSession();
