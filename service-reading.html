@@ -117,20 +117,23 @@
       alt="Revolving Bible"
       class="brand-logo"
     >
+<h1 id="heading">SCRIPTURE READING</h1>
 
-    <h1 id="heading">SCRIPTURE READING</h1>
+<div id="serviceType"></div>
 
-    <div id="passage" aria-live="polite">
-      Waiting for the service reading...
-    </div>
+<div id="serviceDate"></div>
 
-    <div class="gold-divider"></div>
+<div id="passage" aria-live="polite">
+  Waiting for the service reading...
+</div>
 
-    <div id="reference"></div>
+<div class="gold-divider"></div>
 
-    <div id="status" role="status" aria-live="polite">
-      Connecting to the service reading...
-    </div>
+<div id="reference"></div>
+
+<div id="status" role="status" aria-live="polite">
+  Connecting to the service reading...
+</div>
 
   </main>
 
@@ -211,7 +214,13 @@
 
         document.getElementById("heading").textContent =
           data.display_heading || "SCRIPTURE READING";
+        document.getElementById("serviceType").textContent =
+         data.service_type || "";
 
+        document.getElementById("serviceDate").textContent =
+       data.service_date
+    ? new Date(data.service_date + "T00:00:00").toLocaleDateString()
+    : "";
         document.getElementById("passage").textContent =
           data.passage_text;
 
