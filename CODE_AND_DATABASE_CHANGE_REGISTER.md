@@ -240,7 +240,66 @@ Use this template for each significant new change.
 6. Update the Software Technical Specification when architecture changes.
 7. Update the Master Product Guide when product decisions or functionality change.
 8. Keep all technical documents consistent.
+## Digital Service Programme — Database Migrations
 
+### Migration 1: Create Digital Service Programme schema
+
+**File:** `supabase/migrations/20261122223226_create_digital_service_programmes.sql`
+
+**Migration version:** `20261122223226`
+
+**Status:** Applied successfully to Supabase. The SQL file committed to GitHub is a reconstructed record of the schema; it is not the original SQL execution script.
+
+**Database objects created:**
+- `public.church_programmes`
+- `public.church_programme_items`
+
+**Supporting changes:**
+- Added a unique constraint on `churches(id, slug)`.
+- Added foreign-key relationships between churches, programmes and programme items.
+- Added indexes to support programme retrieval and ordered programme items.
+- Added a constraint allowing only one published programme per church.
+- Enabled Row Level Security (RLS) on both new tables.
+- Created policies for public viewing of published programmes and authorised church staff management of programmes and items.
+
+### Migration 2: Tighten Digital Service Programme permissions
+
+**File:** `supabase/migrations/20261122232729_tighten_church_programme_permissions.sql`
+
+**Migration version:** `20261122232729`
+
+**Status:** Applied successfully to Supabase and committed to GitHub.
+
+**Security changes:**
+- Restricted anonymous users to SELECT privileges on programme tables.
+- Granted authenticated users the application-required SELECT, INSERT, UPDATE and DELETE privileges, subject to RLS policies.
+- Removed a redundant permissive programme INSERT policy.
+- Retained the policy requiring active authorised church membership for programme creation.
+
+**Verification:**
+- Database privileges were checked after the migration.
+- Programme INSERT policies were checked to confirm active authorised membership requirements.
+- Supabase Security Advisor was reviewed.
+
+**Outstanding pre-existing security warnings:**
+- `get_server_time` has a mutable search path.
+- Leaked password protection is disabled.
+
+These warnings were not introduced by the Digital Service Programme migrations and remain separate security-hardening tasks.
+
+### Implementation status
+
+The database foundation and initial permissions are in place. The following application work remains outstanding:
+
+- Public Digital Service Programme page.
+- Authorised programme-management interface.
+- Programme creation, editing, publishing, unpublishing and archiving workflows.
+- Ordered programme-item management.
+- Permanent church-specific QR code.
+- Public access, staff permissions and functional security testing.
+- Backup, recovery and deployment documentation updates.
+
+**Important:** The Digital Service Programme is not yet a completed or publicly released feature. Database implementation alone does not mean the attendee or administrator interfaces are operational.
 ---
 
 **END OF CODE AND DATABASE CHANGE REGISTER**
