@@ -446,5 +446,109 @@ It must be updated whenever:
 Each update should include a version number and date.
 
 ---
+## Digital Service Programme — Technical Architecture
 
+### 1. Feature overview
+
+The Digital Service Programme is a church-specific digital programme for special services and events. Attendees access the latest published programme through a permanent QR code.
+
+The QR destination remains unchanged when church administrators update or publish a new programme.
+
+This feature is separate from the Revolving Bible Today's Word QR functionality.
+
+### 2. Database architecture
+
+Two new Supabase tables support this feature.
+
+**Table: `public.church_programmes`**
+
+Stores the main programme information:
+
+- Programme ID.
+- Church ID and church slug.
+- Programme title and theme.
+- Event date and start time.
+- Venue and introduction.
+- Publication status: `draft`, `published` or `archived`.
+- Publication timestamp.
+- User IDs responsible for creation and updates.
+- Creation and modification timestamps.
+
+**Table: `public.church_programme_items`**
+
+Stores individual programme activities:
+
+- Item ID.
+- Parent programme ID.
+- Display order.
+- Activity type.
+- Activity title.
+- Details or description.
+- Participant.
+- Scheduled time.
+- Creation and modification timestamps.
+
+Programme items are linked to their parent programme and are deleted automatically when that programme is deleted.
+
+### 3. Publication and retrieval rules
+
+- Each church may have only one published programme at a time.
+- Draft programmes are not visible to public visitors.
+- Public visitors may view published programmes without signing in.
+- Authorised church personnel may manage programmes according to their membership role.
+- Previous programmes may be retained in archived status.
+- The public QR destination must retrieve the latest published programme for the relevant church.
+
+The application must ensure that replacing a published programme does not expose two published programmes simultaneously.
+
+### 4. Security architecture
+
+Supabase Row Level Security (RLS) is enabled on both programme tables.
+
+**Public visitors:**
+- May read published programmes and their associated items.
+- Cannot create, modify or delete programme records.
+
+**Authenticated church personnel:**
+- Access is controlled by active church membership and authorised roles.
+- `church_admin`, `pastor`, `elder` and `service_operator` are the authorised operational roles.
+- Programme deletion is restricted to `church_admin` and `pastor`.
+- Database privileges do not override RLS restrictions.
+
+The Supabase service-role key must never be exposed in browser-side application code.
+
+### 5. Planned application components
+
+- `programme.html` — public attendee-facing programme page.
+- `programme-control.html` — authorised church programme management interface.
+- Permanent church-specific QR code linking to the public programme page.
+
+These pages are planned components and must not be treated as implemented until developed and tested.
+
+### 6. Current implementation status
+
+**Completed:**
+- Programme database tables.
+- Programme-item database table.
+- Church relationship and constraints.
+- Publication-status rules at database level.
+- Initial RLS policies.
+- Permission-tightening migration.
+- Migration records committed to GitHub.
+
+**Outstanding:**
+- Public programme page.
+- Administrator management interface.
+- Programme-item ordering and editing.
+- Publish, unpublish and archive workflows.
+- Permanent QR code generation.
+- Functional and security testing.
+- Production deployment.
+
+### 7. Database migration references
+
+- `20261122223226_create_digital_service_programmes.sql`
+- `20261122232729_tighten_church_programme_permissions.sql`
+
+The first migration file is a reconstructed schema record, not the original SQL execution script. Refer to the Supabase migration history when investigating the original database deployment.
 **END OF SOFTWARE TECHNICAL SPECIFICATION**
