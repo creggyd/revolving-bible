@@ -444,5 +444,90 @@ This manual must be updated whenever:
 Every significant revision must include a version number and date.
 
 ---
+## Digital Service Programme — Developer Setup Notes
 
+### 1. Required environment
+
+The Digital Service Programme uses the existing Revolving Bible development environment:
+
+- GitHub repository: `https://github.com/creggyd/revolving-bible`
+- Front-end hosting: GitHub Pages.
+- Backend and database: Supabase.
+- Supabase project URL: `https://tthgeaiokpltmfxxmibb.supabase.co`
+
+Use the existing project configuration and approved Supabase client integration.
+
+Never commit passwords, private keys, Supabase service-role keys or other confidential credentials to GitHub.
+
+### 2. Database migration records
+
+The following migration files are maintained in:
+
+`supabase/migrations/`
+
+1. `20261122223226_create_digital_service_programmes.sql`
+2. `20261122232729_tighten_church_programme_permissions.sql`
+
+The first file is a reconstructed schema record. The original migration was already applied to the live Supabase project. Do not run the reconstructed file against the existing database as a fresh migration.
+
+The second migration records the permission-tightening changes applied to the live project.
+
+Before setting up a new environment, inspect the Supabase migration history and compare the database schema and policies with the committed migration records.
+
+### 3. Database verification
+
+A developer should verify:
+
+- `public.church_programmes` exists.
+- `public.church_programme_items` exists.
+- Both tables have Row Level Security enabled.
+- The church relationship and programme-item relationship are intact.
+- The one-published-programme-per-church constraint is present.
+- Anonymous users have SELECT privileges only.
+- Authenticated users have the required table privileges, subject to RLS.
+- Programme creation and editing require active authorised church membership.
+
+### 4. Church configuration
+
+The existing church record used during development is:
+
+- Church: Omara Road Seventhday Adventist Church.
+- Church ID: `cd90c8c5-3931-4995-948b-9004dc398846`
+- Church slug: `omara-road-seventhday-adventist-church`
+- Time zone: `America/Jamaica`
+
+Production code should resolve the church through its approved church context or URL slug. Do not rely on hard-coded church IDs as the permanent multi-church architecture.
+
+### 5. Planned pages
+
+The following pages are not yet implemented:
+
+- `programme.html` — public attendee access.
+- `programme-control.html` — authorised programme management.
+
+The intended public URL for the initial church is:
+
+`https://creggyd.github.io/revolving-bible/programme.html?church=omara-road-seventhday-adventist-church`
+
+This is a planned destination, not a currently operational page.
+
+### 6. Deployment and testing requirements
+
+Before releasing the feature:
+
+- Test public programme retrieval without signing in.
+- Test that unpublished drafts cannot be viewed publicly.
+- Test authorised church staff access.
+- Test unauthorised user restrictions.
+- Test programme creation, editing and item ordering.
+- Test publishing, replacing and archiving programmes.
+- Verify that the permanent QR code always opens the correct church programme.
+- Test the pages on desktop, tablet and mobile.
+- Confirm that changes published by church administrators appear to attendees without generating a new QR code.
+
+### 7. Current status
+
+The database foundation and permission-tightening migration are complete. The public page, administration interface, QR generation and end-to-end testing remain outstanding.
+
+A new developer must review the master guide, technical specification and code/database change register before modifying or extending the feature.
 **END OF DEVELOPER INSTALLATION AND SETUP MANUAL**
