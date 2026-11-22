@@ -979,4 +979,76 @@ Whenever a feature is agreed, implemented, tested, changed or retired:
 4. Add a dated entry to the change log.
 5. Keep the Word presentation guide aligned with this document when it is revised.
 
+## Professional Developer Handover and Technical Documentation
+
+### 1. Purpose
+
+The Revolving Bible application must remain maintainable, transferable and expandable. Development must be documented so that a professional software developer or development company can assume responsibility without having to reverse-engineer the existing application.
+
+### 2. Source Code Preservation
+
+Every implemented feature must have its complete source code preserved, including:
+
+- HTML, CSS and JavaScript.
+- SQL database scripts and migrations.
+- Database functions, triggers and policies.
+- Application configuration and integration requirements.
+- Relevant dependencies and external libraries.
+
+The exact GitHub filename and folder location must be documented for each component.
+
+### 3. Technical Documentation
+
+The project will maintain three dedicated technical documents:
+
+**A. Software Technical Specification**
+- Application architecture and components.
+- Database structure and relationships.
+- Authentication and authorisation.
+- Security policies and Row Level Security.
+- External services and integrations.
+- Feature descriptions and dependencies.
+
+**B. Developer Installation and Setup Manual**
+- Development environment requirements.
+- Repository setup and application configuration.
+- Supabase project configuration.
+- Database migration instructions.
+- Testing and deployment procedures.
+- Backup and recovery instructions.
+
+**C. Code and Database Change Register**
+- Date of each significant change.
+- Feature or component affected.
+- Description and reason for the change.
+- Database migrations applied.
+- GitHub commit references.
+- Testing results and outstanding issues.
+
+### 4. Security and Access Protection
+
+- Never publish passwords, private API keys, service-role keys or other secrets in public source code.
+- Document required environment variables without recording their secret values.
+- Document user roles, permissions and database security policies.
+- Maintain appropriate backup and recovery procedures.
+- Record ownership and administrative access arrangements.
+
+### 5. Development and Handover Standard
+
+Every new feature must include:
+1. Complete source code.
+2. Database changes and migration scripts, where applicable.
+3. Exact file locations.
+4. Technical explanation and dependencies.
+5. Implementation and testing status.
+6. Relevant updates to the master documentation.
+
+### 6. Project Continuity Principle
+
+The Revolving Bible application must not depend exclusively on one developer, one AI assistant or one individual's knowledge.
+
+The project owner must retain access to the source code, documentation, database configuration and necessary administrative accounts.
+
+**Guiding principle:** The Revolving Bible must remain maintainable, transferable and expandable, even when development responsibility changes hands.
+
 **End of Master Guide**
