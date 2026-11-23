@@ -612,79 +612,24 @@ async function verifyChurchAccess(user) {
 }
 
 async function checkExistingSession() {
-  const { data, error } = await supabaseClient.auth.getUser();
+  const { data, error } =
+    await supabaseClient.auth.getSession();
 
   if (error) {
     showLogin();
     showMessage(
-      "Unable to verify your sign-in session. Please sign in again.",
+      "Unable to check your sign-in session. Please try again.",
       "error"
     );
     return;
   }
 
-  if (data.user) {
-    await verifyChurchAccess(data.user);
+  if (data.session && data.session.user) {
+    await verifyChurchAccess(data.session.user);
   } else {
     showLogin();
   }
 }
-
-loginForm.addEventListener("submit", async function(event) {
-  event.preventDefault();
-
-  statusMessage.textContent = "";
-  loginButton.disabled = true;
-  loginButton.textContent = "Signing in...";
-
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  try {
-    const { data, error } =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
-
-    if (error) {
-      showMessage(
-        "Sign-in failed. Please check your email and password.",
-        "error"
-      );
-    } else if (data.user) {
-      await verifyChurchAccess(data.user);
-    }
-  } catch (error) {
-    showMessage(
-      "A connection problem occurred. Please try again.",
-      "error"
-    );
-  } finally {
-    loginButton.disabled = false;
-    loginButton.textContent = "Sign In";
-  }
-});
-
-document.getElementById("signOutButton")
-  .addEventListener("click", async function() {
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) {
-      showMessage("Unable to sign out. Please try again.", "error");
-      return;
-    }
-
-    showLogin();
-    loginForm.reset();
-    showMessage("You have signed out successfully.", "success");
-  });
-
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  if (event === "SIGNED_OUT") {
-    showLogin();
-  }
-});
 
 checkExistingSession();
 </script>
