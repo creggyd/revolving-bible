@@ -1,0 +1,559 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#102d25">
+
+  <title>Digital Service Programme | Revolving Bible</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 30px 18px;
+      color: #ffffff;
+      background:
+        radial-gradient(ellipse at center, #1b4939 0%, #102d25 65%, #091d18 100%);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    .brand-logo {
+      display: block;
+      width: min(65vw, 420px);
+      max-height: 190px;
+      height: auto;
+      object-fit: contain;
+      margin: 0 auto 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    h1 {
+      color: #e3c77b;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: normal;
+      margin: 15px 0;
+    }
+
+    #churchName {
+      color: #d2ded8;
+      font-size: 17px;
+    }
+
+    .programme-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(227, 199, 123, 0.35);
+      border-radius: 14px;
+      padding: clamp(20px, 4vw, 35px);
+      margin-bottom: 25px;
+    }
+
+    #programmeTitle {
+      color: #e3c77b;
+      font-size: clamp(25px, 4vw, 36px);
+      text-align: center;
+      font-weight: normal;
+      margin: 0 0 12px;
+    }
+
+    #programmeTheme {
+      text-align: center;
+      font-size: 19px;
+      margin-bottom: 20px;
+    }
+
+    .programme-meta {
+      text-align: center;
+      color: #d2ded8;
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    #introduction {
+      margin-top: 25px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      text-align: center;
+    }
+
+    .section-heading {
+      color: #e3c77b;
+      font-size: 25px;
+      font-weight: normal;
+      text-align: center;
+      margin: 35px 0 20px;
+    }
+
+    .programme-item {
+      display: grid;
+      grid-template-columns: 75px 1fr;
+      gap: 15px;
+      padding: 18px 10px;
+      border-bottom: 1px solid rgba(227, 199, 123, 0.22);
+    }
+
+    .item-time {
+      color: #e3c77b;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      padding-top: 4px;
+    }
+
+    .item-type {
+      color: #c5d4cc;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .item-title {
+      font-size: 21px;
+      margin-bottom: 7px;
+    }
+
+    .item-details {
+      color: #d2ded8;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .item-participant {
+      color: #e3c77b;
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    #status {
+      text-align: center;
+      color: #d2ded8;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      margin: 25px 0;
+      line-height: 1.6;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 35px 15px;
+      color: #d2ded8;
+      line-height: 1.7;
+    }
+
+    footer {
+      text-align: center;
+      color: #aebeb5;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      margin-top: 35px;
+    }
+
+    @media (max-width: 500px) {
+      .programme-item {
+        grid-template-columns: 1fr;
+        gap: 7px;
+      }
+
+      .item-time {
+        font-weight: bold;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <header>
+      <img
+        src="assets/revolving-bible-logo.png"
+        alt="Revolving Bible"
+        class="brand-logo"
+      >
+
+      <h1>Digital Service Programme</h1>
+
+      <div id="churchName">Church Service Programme</div>
+    </header>
+
+    <section id="programmeArea" class="programme-card">
+
+      <div id="status" role="status" aria-live="polite">
+        Loading the latest service programme...
+      </div>
+
+    </section>
+
+    <footer>
+      Powered by Revolving Bible
+    </footer>
+
+  </main>
+
+  <script>
+    // SUPABASE CONNECTION
+
+    const SUPABASE_URL =
+      "https://tthgeaiokpltmfxxmibb.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    // CHURCH IDENTIFICATION
+
+    const urlParameters = new URLSearchParams(
+      window.location.search
+    );
+
+    const CHURCH_SLUG =
+      urlParameters.get("church");
+
+    let refreshInProgress = false;
+
+    // DATE AND TIME FORMATTING
+
+    function formatDate(dateValue) {
+      if (!dateValue) return "";
+
+      const date = new Date(dateValue + "T00:00:00");
+
+      return date.toLocaleDateString("en-JM", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function formatTime(timeValue) {
+      if (!timeValue) return "";
+
+      const parts = timeValue.split(":");
+
+      const date = new Date();
+      date.setHours(
+        Number(parts[0]),
+        Number(parts[1]),
+        0
+      );
+
+      return date.toLocaleTimeString("en-JM", {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    // SAFELY CREATE TEXT ELEMENTS
+
+    function createTextElement(tag, className, text) {
+      const element = document.createElement(tag);
+
+      if (className) {
+        element.className = className;
+      }
+
+      element.textContent = text || "";
+
+      return element;
+    }
+
+    // DISPLAY PROGRAMME ITEMS
+
+    function displayProgrammeItems(items) {
+      const area = document.getElementById("programmeArea");
+
+      area.appendChild(
+        createTextElement(
+          "h2",
+          "section-heading",
+          "Order of Service"
+        )
+      );
+
+      if (!items || items.length === 0) {
+        area.appendChild(
+          createTextElement(
+            "p",
+            "empty-state",
+            "The programme items have not yet been added."
+          )
+        );
+
+        return;
+      }
+
+      items.forEach(item => {
+        const itemContainer =
+          document.createElement("article");
+
+        itemContainer.className = "programme-item";
+
+        const time = createTextElement(
+          "div",
+          "item-time",
+          formatTime(item.scheduled_time)
+        );
+
+        const content = document.createElement("div");
+
+        content.appendChild(
+          createTextElement(
+            "div",
+            "item-type",
+            (item.item_type || "Service item").replaceAll("_", " ")
+          )
+        );
+
+        content.appendChild(
+          createTextElement(
+            "div",
+            "item-title",
+            item.title
+          )
+        );
+
+        if (item.details) {
+          content.appendChild(
+            createTextElement(
+              "div",
+              "item-details",
+              item.details
+            )
+          );
+        }
+
+        if (item.participant) {
+          content.appendChild(
+            createTextElement(
+              "div",
+              "item-participant",
+              item.participant
+            )
+          );
+        }
+
+        itemContainer.appendChild(time);
+        itemContainer.appendChild(content);
+
+        area.appendChild(itemContainer);
+      });
+    }
+
+    // LOAD THE LATEST PUBLISHED PROGRAMME
+
+    async function loadProgramme() {
+      if (refreshInProgress) return;
+
+      refreshInProgress = true;
+
+      const area = document.getElementById("programmeArea");
+      const status = document.getElementById("status");
+
+      try {
+
+        if (!CHURCH_SLUG) {
+          throw new Error(
+            "The church was not identified. Please use the correct QR code."
+          );
+        }
+
+        // Find the published programme for this church.
+
+        const {
+          data: programme,
+          error: programmeError
+        } = await supabaseClient
+          .from("church_programmes")
+          .select("*")
+          .eq("church_slug", CHURCH_SLUG)
+          .eq("status", "published")
+          .maybeSingle();
+
+        if (programmeError) {
+          throw programmeError;
+        }
+
+        if (!programme) {
+          area.innerHTML = "";
+
+          area.appendChild(
+            createTextElement(
+              "h2",
+              "section-heading",
+              "No Programme Currently Published"
+            )
+          );
+
+          area.appendChild(
+            createTextElement(
+              "p",
+              "empty-state",
+              "Please check again later for the latest church service programme."
+            )
+          );
+
+          status.textContent = "";
+
+          return;
+        }
+
+        // Retrieve programme items in display order.
+
+        const {
+          data: items,
+          error: itemsError
+        } = await supabaseClient
+          .from("church_programme_items")
+          .select(
+            "id, sort_order, item_type, title, details, participant, scheduled_time"
+          )
+          .eq("programme_id", programme.id)
+          .order("sort_order", { ascending: true });
+
+        if (itemsError) {
+          throw itemsError;
+        }
+
+        // Clear the previous programme display.
+
+        area.innerHTML = "";
+
+        // Display programme title.
+
+        area.appendChild(
+          createTextElement(
+            "h2",
+            "",
+            programme.title
+          )
+        );
+
+        area.lastElementChild.id = "programmeTitle";
+
+        if (programme.theme) {
+          area.appendChild(
+            createTextElement(
+              "div",
+              "",
+              programme.theme
+            )
+          );
+
+          area.lastElementChild.id = "programmeTheme";
+        }
+
+        // Display date, time and venue.
+
+        const meta = document.createElement("div");
+        meta.className = "programme-meta";
+
+        meta.appendChild(
+          createTextElement(
+            "div",
+            "",
+            formatDate(programme.event_date)
+          )
+        );
+
+        if (programme.start_time) {
+          meta.appendChild(
+            createTextElement(
+              "div",
+              "",
+              "Start time: " + formatTime(programme.start_time)
+            )
+          );
+        }
+
+        if (programme.venue) {
+          meta.appendChild(
+            createTextElement(
+              "div",
+              "",
+              "Venue: " + programme.venue
+            )
+          );
+        }
+
+        area.appendChild(meta);
+
+        // Display introduction.
+
+        if (programme.introduction) {
+          area.appendChild(
+            createTextElement(
+              "div",
+              "",
+              programme.introduction
+            )
+          );
+
+          area.lastElementChild.id = "introduction";
+        }
+
+        // Display ordered programme items.
+
+        displayProgrammeItems(items);
+
+        status.textContent =
+          "Latest published programme";
+
+      } catch (error) {
+
+        console.error("Programme loading error:", error);
+
+        area.innerHTML = "";
+
+        area.appendChild(
+          createTextElement(
+            "p",
+            "empty-state",
+            "We are unable to load the service programme at this time. Please try again shortly."
+          )
+        );
+
+        status.textContent =
+          "Programme connection error.";
+
+      } finally {
+        refreshInProgress = false;
+      }
+    }
+
+    // INITIAL LOAD
+
+    loadProgramme();
+
+    // CHECK FOR PROGRAMME UPDATES EVERY 30 SECONDS.
+
+    setInterval(loadProgramme, 30000);
+
+  </script>
+
+</body>
+</html>
