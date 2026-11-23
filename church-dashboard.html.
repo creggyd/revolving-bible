@@ -1,0 +1,693 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Church Dashboard | Revolving Bible</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --green: #123d2b;
+  --green-dark: #0b2b1e;
+  --gold: #d7b45a;
+  --background: #f4f6f3;
+  --white: #ffffff;
+  --text: #26352c;
+  --muted: #718078;
+  --border: #e2e8e3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--background);
+  color: var(--text);
+}
+
+button, input {
+  font: inherit;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.topbar {
+  background: var(--green-dark);
+  color: white;
+  padding: 17px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.brand-subtitle {
+  color: #d9c994;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.top-actions a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.signout {
+  border: 1px solid var(--gold);
+  color: white;
+  background: transparent;
+  padding: 9px 15px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.page {
+  max-width: 1200px;
+  margin: auto;
+  padding: 35px 22px 60px;
+}
+
+.welcome {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 25px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.church-mark {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: #edf2ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.welcome h1 {
+  margin: 0 0 7px;
+  font-size: 25px;
+}
+
+.welcome p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.role {
+  margin-left: auto;
+  background: #edf3ed;
+  color: var(--green);
+  padding: 8px 13px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.section-heading {
+  margin: 32px 0 16px;
+}
+
+.section-heading h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+
+.section-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 17px;
+}
+
+.dashboard-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 21px;
+  min-height: 175px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color .2s, transform .2s;
+}
+
+.dashboard-card.active:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #edf3ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  margin-bottom: 14px;
+}
+
+.dashboard-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.dashboard-card p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0 0 17px;
+}
+
+.card-link {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+  margin-top: auto;
+}
+
+.coming {
+  color: #8a8062;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: auto;
+}
+
+.login-wrap {
+  max-width: 440px;
+  margin: 65px auto;
+  padding: 0 20px;
+}
+
+.login-box {
+  background: white;
+  border-radius: 14px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 30px rgba(0,0,0,.05);
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-logo img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.login-logo h1 {
+  color: var(--green);
+  font-size: 22px;
+  margin: 10px 0 5px;
+}
+
+.login-logo p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.login-box label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  margin: 17px 0 7px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #ccd5ce;
+  border-radius: 7px;
+}
+
+.login-button {
+  width: 100%;
+  background: var(--green);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 7px;
+  margin-top: 22px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.login-button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+.message {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 7px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.message:empty {
+  display: none;
+}
+
+.message.error {
+  background: #fff0ee;
+  color: #a22b20;
+}
+
+.message.success {
+  background: #edf5ee;
+  color: #245d35;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media(max-width: 850px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media(max-width: 560px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .role {
+    margin-left: 0;
+  }
+
+  .topbar {
+    padding: 15px 18px;
+  }
+
+  .brand img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .page {
+    padding: 22px 15px 45px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/revolving-bible-logo.png"
+         alt="Revolving Bible logo">
+    <div>
+      <div class="brand-title">Revolving Bible</div>
+      <div class="brand-subtitle">Church Management Portal</div>
+    </div>
+  </div>
+
+  <div class="top-actions hidden" id="topActions">
+    <a href="index.html">Public Home</a>
+    <button class="signout" id="signOutButton">Sign Out</button>
+  </div>
+</header>
+
+<section class="login-wrap" id="loginSection">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="assets/revolving-bible-logo.png"
+           alt="Revolving Bible logo">
+      <h1>Church Sign In</h1>
+      <p>Access your church's Revolving Bible workspace.</p>
+    </div>
+
+    <form id="loginForm">
+      <label for="email">Email Address</label>
+      <input id="email" type="email" required
+             autocomplete="username">
+
+      <label for="password">Password</label>
+      <input id="password" type="password" required
+             autocomplete="current-password">
+
+      <button class="login-button" id="loginButton"
+              type="submit">Sign In</button>
+    </form>
+
+    <div id="statusMessage" class="message"
+         role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<main class="page hidden" id="dashboardSection">
+
+  <section class="welcome">
+    <div class="church-mark" id="churchInitial">C</div>
+
+    <div>
+      <h1 id="churchName">Your Church</h1>
+      <p>Welcome to your church management workspace.</p>
+    </div>
+
+    <div class="role" id="accountRole">Church Admin</div>
+  </section>
+
+  <div class="section-heading">
+    <h2>Church Management</h2>
+    <p>Manage your church's Scripture experience and digital services.</p>
+  </div>
+
+  <div class="dashboard-grid">
+
+    <article class="dashboard-card active">
+      <div class="card-icon">📖</div>
+      <h3>Scripture Display</h3>
+      <p>Access the revolving Scripture display and preacher-controlled reading tools.</p>
+      <a class="card-link" href="preacher-control.html">
+        Open Scripture Controls →
+      </a>
+    </article>
+
+    <article class="dashboard-card active">
+      <div class="card-icon">🖥️</div>
+      <h3>Church Display Screen</h3>
+      <p>Open the congregation-facing revolving Bible display.</p>
+      <a class="card-link" href="church-display.html">
+        View Church Display →
+      </a>
+    </article>
+
+    <article class="dashboard-card active">
+      <div class="card-icon">📅</div>
+      <h3>Digital Service Programme</h3>
+      <p>View the public digital service programme for your congregation.</p>
+      <a class="card-link" href="programme.html">
+        View Programme →
+      </a>
+    </article>
+
+    <article class="dashboard-card active">
+      <div class="card-icon">✨</div>
+      <h3>Today's Word</h3>
+      <p>Open the Scripture sharing page used by members and visitors.</p>
+      <a class="card-link" href="index.html">
+        View Today's Word →
+      </a>
+    </article>
+
+    <article class="dashboard-card">
+      <div class="card-icon">🗓️</div>
+      <h3>Special Services & Events</h3>
+      <p>Future workspace for creating and managing special church services and events.</p>
+      <span class="coming">Coming soon</span>
+    </article>
+
+    <article class="dashboard-card">
+      <div class="card-icon">📚</div>
+      <h3>Weekly Scripture Study</h3>
+      <p>Future workspace for publishing weekly studies and managing congregation discussions.</p>
+      <span class="coming">Coming soon</span>
+    </article>
+
+    <article class="dashboard-card">
+      <div class="card-icon">👥</div>
+      <h3>Members & Permissions</h3>
+      <p>Future workspace for managing church members, roles and access permissions.</p>
+      <span class="coming">Coming soon</span>
+    </article>
+
+    <article class="dashboard-card">
+      <div class="card-icon">🎨</div>
+      <h3>Appearance & Branding</h3>
+      <p>Future workspace for church logos, approved colour themes and branding settings.</p>
+      <span class="coming">Coming soon</span>
+    </article>
+
+    <article class="dashboard-card">
+      <div class="card-icon">⚙️</div>
+      <h3>Church Settings</h3>
+      <p>Future workspace for church profile and platform configuration.</p>
+      <span class="coming">Coming soon</span>
+    </article>
+
+  </div>
+</main>
+
+<footer>
+  Revolving Bible · Keeping Scripture Present in Everyday Life
+</footer>
+
+<script>
+const SUPABASE_URL =
+  "https://tthgeaiokpltmfxxmibb.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+const loginSection = document.getElementById("loginSection");
+const dashboardSection = document.getElementById("dashboardSection");
+const loginForm = document.getElementById("loginForm");
+const loginButton = document.getElementById("loginButton");
+const statusMessage = document.getElementById("statusMessage");
+const topActions = document.getElementById("topActions");
+
+function showMessage(message, type) {
+  statusMessage.textContent = message;
+  statusMessage.className = "message " + type;
+}
+
+function showLogin() {
+  loginSection.classList.remove("hidden");
+  dashboardSection.classList.add("hidden");
+  topActions.classList.add("hidden");
+}
+
+function showDashboard(user, church, membership) {
+  document.getElementById("churchName").textContent = church.name;
+  document.getElementById("churchInitial").textContent =
+    church.name.charAt(0).toUpperCase();
+
+  document.getElementById("accountRole").textContent =
+    membership.role.replaceAll("_", " ");
+
+  loginSection.classList.add("hidden");
+  dashboardSection.classList.remove("hidden");
+  topActions.classList.remove("hidden");
+
+  statusMessage.textContent = "";
+  statusMessage.className = "message";
+}
+
+async function verifyChurchAccess(user) {
+  showMessage("Verifying your church access...", "success");
+
+  const { data: memberships, error: membershipError } =
+    await supabaseClient
+      .from("church_memberships")
+      .select("church_id, role, status")
+      .eq("user_id", user.id)
+      .eq("status", "active");
+
+  if (membershipError) {
+    showLogin();
+    showMessage(
+      "We could not verify your church permissions. Please try again.",
+      "error"
+    );
+    return;
+  }
+
+  if (!memberships || memberships.length === 0) {
+    showLogin();
+    showMessage(
+      "Access denied. No active church membership was found for this account.",
+      "error"
+    );
+    return;
+  }
+
+  if (memberships.length > 1) {
+    showLogin();
+    showMessage(
+      "This account has more than one active church membership. Please contact the platform administrator.",
+      "error"
+    );
+    return;
+  }
+
+  const membership = memberships[0];
+
+  if (membership.role !== "church_admin") {
+    showLogin();
+    showMessage(
+      "Your account is recognised, but this administrator dashboard is not available for your assigned role.",
+      "error"
+    );
+    return;
+  }
+
+  const { data: church, error: churchError } =
+    await supabaseClient
+      .from("churches")
+      .select("id, name")
+      .eq("id", membership.church_id)
+      .maybeSingle();
+
+  if (churchError || !church) {
+    showLogin();
+    showMessage(
+      "Your church record could not be verified. Please contact the platform administrator.",
+      "error"
+    );
+    return;
+  }
+
+  showDashboard(user, church, membership);
+}
+
+async function checkExistingSession() {
+  const { data, error } = await supabaseClient.auth.getUser();
+
+  if (error) {
+    showLogin();
+    showMessage(
+      "Unable to verify your sign-in session. Please sign in again.",
+      "error"
+    );
+    return;
+  }
+
+  if (data.user) {
+    await verifyChurchAccess(data.user);
+  } else {
+    showLogin();
+  }
+}
+
+loginForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  statusMessage.textContent = "";
+  loginButton.disabled = true;
+  loginButton.textContent = "Signing in...";
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  try {
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+      showMessage(
+        "Sign-in failed. Please check your email and password.",
+        "error"
+      );
+    } else if (data.user) {
+      await verifyChurchAccess(data.user);
+    }
+  } catch (error) {
+    showMessage(
+      "A connection problem occurred. Please try again.",
+      "error"
+    );
+  } finally {
+    loginButton.disabled = false;
+    loginButton.textContent = "Sign In";
+  }
+});
+
+document.getElementById("signOutButton")
+  .addEventListener("click", async function() {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      showMessage("Unable to sign out. Please try again.", "error");
+      return;
+    }
+
+    showLogin();
+    loginForm.reset();
+    showMessage("You have signed out successfully.", "success");
+  });
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_OUT") {
+    showLogin();
+  }
+});
+
+checkExistingSession();
+</script>
+
+</body>
+</html>
