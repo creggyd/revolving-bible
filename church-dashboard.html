@@ -13,15 +13,15 @@
   --green-dark: #0b2b1e;
   --gold: #d7b45a;
   --background: #f4f6f3;
-  --white: #ffffff;
+  --panel: #ffffff;
   --text: #26352c;
   --muted: #718078;
   --border: #e2e8e3;
+  --sidebar-width: 260px;
+  --shadow: 0 5px 18px rgba(15, 45, 30, .07);
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -30,44 +30,123 @@ body {
   color: var(--text);
 }
 
-button, input {
-  font: inherit;
+button, input { font: inherit; }
+.hidden { display: none !important; }
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
 }
 
-.hidden {
-  display: none !important;
+.sidebar {
+  background: var(--green-dark);
+  color: white;
+  min-height: 100vh;
+  padding: 25px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand {
+  text-align: center;
+  padding: 5px 8px 25px;
+  border-bottom: 1px solid rgba(215,180,90,.55);
+}
+
+.sidebar-brand img {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+}
+
+.sidebar-brand h1 {
+  font-size: 20px;
+  margin: 8px 0 5px;
+}
+
+.sidebar-brand p {
+  color: #d9c994;
+  font-size: 12px;
+  margin: 0;
+}
+
+.nav-label {
+  color: #c9d3cb;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 10px;
+  font-weight: bold;
+  margin: 24px 12px 10px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 13px;
+  border-radius: 8px;
+  color: #f3f5f2;
+  text-decoration: none;
+  font-size: 13px;
+  transition: background .2s, color .2s;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,.09);
+}
+
+.nav-link.active {
+  background: var(--gold);
+  color: var(--green-dark);
+  font-weight: bold;
+}
+
+.nav-icon {
+  width: 23px;
+  text-align: center;
+  font-size: 17px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 22px 8px 5px;
+  text-align: center;
+  color: #e1c779;
+  font-size: 12px;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.main-area {
+  min-width: 0;
 }
 
 .topbar {
-  background: var(--green-dark);
+  min-height: 92px;
+  background: var(--green);
   color: white;
-  padding: 17px 5%;
+  border-bottom: 4px solid var(--gold);
+  padding: 17px 30px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  flex-wrap: wrap;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.brand img {
-  width: 58px;
-  height: 58px;
-  object-fit: contain;
-}
-
-.brand-title {
+.topbar-title {
   font-size: 20px;
   font-weight: bold;
 }
 
-.brand-subtitle {
-  color: #d9c994;
+.topbar-subtitle {
+  color: #e0d4ad;
   font-size: 12px;
   margin-top: 5px;
 }
@@ -75,62 +154,78 @@ button, input {
 .top-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 15px;
 }
 
 .top-actions a {
   color: white;
+  font-size: 13px;
   text-decoration: none;
-  font-size: 14px;
 }
 
 .signout {
   border: 1px solid var(--gold);
-  color: white;
   background: transparent;
-  padding: 9px 15px;
+  color: white;
+  padding: 9px 14px;
   border-radius: 7px;
   cursor: pointer;
 }
 
-.page {
-  max-width: 1200px;
+.signout:hover {
+  background: rgba(215,180,90,.15);
+}
+
+.content {
+  max-width: 1500px;
   margin: auto;
-  padding: 35px 22px 60px;
+  padding: 27px 28px 45px;
 }
 
 .welcome {
-  background: white;
+  background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 13px;
-  padding: 25px;
+  padding: 23px;
   display: flex;
   align-items: center;
   gap: 18px;
+  box-shadow: var(--shadow);
   margin-bottom: 28px;
 }
 
-.church-mark {
-  width: 64px;
-  height: 64px;
+.church-logo-wrap {
+  width: 70px;
+  height: 70px;
+  flex: 0 0 70px;
   border-radius: 12px;
   background: #edf2ed;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   color: var(--green);
-  font-size: 26px;
+  font-size: 28px;
   font-weight: bold;
 }
 
+.church-logo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.welcome-copy { min-width: 0; }
+
 .welcome h1 {
   margin: 0 0 7px;
-  font-size: 25px;
+  font-size: 23px;
 }
 
 .welcome p {
   margin: 0;
   color: var(--muted);
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -138,16 +233,20 @@ button, input {
   margin-left: auto;
   background: #edf3ed;
   color: var(--green);
-  padding: 8px 13px;
+  padding: 9px 13px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   text-transform: capitalize;
   white-space: nowrap;
 }
 
 .section-heading {
-  margin: 32px 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 15px;
+  margin: 30px 0 15px;
 }
 
 .section-heading h2 {
@@ -158,69 +257,109 @@ button, input {
 .section-heading p {
   margin: 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
+}
+
+.section-tag {
+  color: var(--green);
+  font-size: 11px;
+  font-weight: bold;
 }
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 17px;
 }
 
 .dashboard-card {
-  background: white;
+  background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 21px;
-  min-height: 175px;
+  border-left: 4px solid var(--green);
+  border-radius: 11px;
+  padding: 19px;
+  min-height: 155px;
   display: flex;
-  flex-direction: column;
-  transition: border-color .2s, transform .2s;
+  align-items: flex-start;
+  gap: 15px;
+  box-shadow: var(--shadow);
+  transition: transform .2s, border-color .2s;
 }
 
 .dashboard-card.active:hover {
-  border-color: var(--gold);
   transform: translateY(-2px);
+  border-color: var(--gold);
 }
 
 .card-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border-radius: 50%;
   background: #edf3ed;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 21px;
-  margin-bottom: 14px;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 115px;
+  flex: 1;
 }
 
 .dashboard-card h3 {
-  margin: 0 0 8px;
-  font-size: 16px;
+  margin: 2px 0 8px;
+  font-size: 15px;
 }
 
 .dashboard-card p {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.55;
-  margin: 0 0 17px;
+  margin: 0 0 15px;
 }
 
 .card-link {
   color: var(--green);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   text-decoration: none;
   margin-top: auto;
 }
 
+.card-link:hover { text-decoration: underline; }
+
 .coming {
   color: #8a8062;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   margin-top: auto;
 }
+
+.bottom-note {
+  margin-top: 27px;
+  background: #edf2ed;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.bottom-note strong { color: var(--green); }
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* Login screen */
 
 .login-wrap {
   max-width: 440px;
@@ -233,7 +372,7 @@ button, input {
   border-radius: 14px;
   padding: 32px;
   border: 1px solid var(--border);
-  box-shadow: 0 8px 30px rgba(0,0,0,.05);
+  box-shadow: var(--shadow);
 }
 
 .login-logo {
@@ -298,58 +437,110 @@ button, input {
   line-height: 1.5;
 }
 
-.message:empty {
-  display: none;
+.message:empty { display: none; }
+.message.error { background: #fff0ee; color: #a22b20; }
+.message.success { background: #edf5ee; color: #245d35; }
+
+/* Approved church themes */
+
+body.theme-royal-blue {
+  --green: #173b70;
+  --green-dark: #10294d;
 }
 
-.message.error {
-  background: #fff0ee;
-  color: #a22b20;
+body.theme-natural-green {
+  --green: #356344;
+  --green-dark: #203f2b;
 }
 
-.message.success {
-  background: #edf5ee;
-  color: #245d35;
+body.theme-charcoal-gold {
+  --green: #343434;
+  --green-dark: #202020;
 }
 
-footer {
-  text-align: center;
-  padding: 25px;
-  color: var(--muted);
-  font-size: 12px;
+/* Responsive layout */
+
+@media(max-width: 1050px) {
+  :root { --sidebar-width: 225px; }
+  .content { padding: 23px 20px 40px; }
 }
 
-@media(max-width: 850px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media(max-width: 560px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
+@media(max-width: 760px) {
+  .app-shell {
+    display: block;
   }
 
-  .welcome {
-    align-items: flex-start;
-    flex-wrap: wrap;
+  .sidebar {
+    min-height: auto;
+    padding: 12px;
   }
 
-  .role {
-    margin-left: 0;
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    gap: 12px;
+    padding: 3px 8px 12px;
   }
 
-  .topbar {
-    padding: 15px 18px;
-  }
-
-  .brand img {
+  .sidebar-brand img {
     width: 48px;
     height: 48px;
   }
 
-  .page {
-    padding: 22px 15px 45px;
+  .sidebar-brand h1 {
+    font-size: 16px;
+    margin: 0 0 4px;
+  }
+
+  .sidebar-brand p { font-size: 11px; }
+
+  .nav-label, .sidebar-footer { display: none; }
+
+  .sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 10px 0 2px;
+    gap: 6px;
+  }
+
+  .nav-link {
+    white-space: nowrap;
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .nav-icon { width: auto; }
+
+  .topbar {
+    min-height: 70px;
+    padding: 14px 18px;
+  }
+
+  .topbar-title { font-size: 16px; }
+  .topbar-subtitle { font-size: 11px; }
+  .content { padding: 20px 15px 35px; }
+}
+
+@media(max-width: 560px) {
+  .dashboard-grid { grid-template-columns: 1fr; }
+
+  .welcome {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 18px;
+  }
+
+  .welcome h1 { font-size: 19px; }
+  .role { margin-left: 0; }
+
+  .top-actions { gap: 9px; }
+  .top-actions a { display: none; }
+  .signout { padding: 8px 11px; font-size: 12px; }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>
@@ -357,23 +548,7 @@ footer {
 
 <body>
 
-<header class="topbar">
-  <div class="brand">
-    <img src="assets/revolving-bible-logo.png"
-         alt="Revolving Bible logo">
-    <div>
-      <div class="brand-title">Revolving Bible</div>
-      <div class="brand-subtitle">Church Management Portal</div>
-    </div>
-  </div>
-
-  <div class="top-actions hidden" id="topActions">
-    <a href="index.html">Public Home</a>
-    <button class="signout" id="signOutButton">Sign Out</button>
-  </div>
-</header>
-
-<section class="login-wrap" id="loginSection">
+<section class="login-wrap hidden" id="loginSection">
   <div class="login-box">
     <div class="login-logo">
       <img src="assets/revolving-bible-logo.png"
@@ -400,105 +575,214 @@ footer {
   </div>
 </section>
 
-<main class="page hidden" id="dashboardSection">
+<div class="app-shell hidden" id="dashboardSection">
 
-  <section class="welcome">
-    <div class="church-mark" id="churchInitial">C</div>
-
-    <div>
-      <h1 id="churchName">Your Church</h1>
-      <p>Welcome to your church management workspace.</p>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/revolving-bible-logo.png"
+           alt="Revolving Bible logo">
+      <div>
+        <h1>Revolving Bible</h1>
+        <p>Church Management Portal</p>
+      </div>
     </div>
 
-    <div class="role" id="accountRole">Church Admin</div>
-  </section>
+    <div class="nav-label">Main Workspace</div>
 
-  <div class="section-heading">
-    <h2>Church Management</h2>
-    <p>Manage your church's Scripture experience and digital services.</p>
+    <nav class="sidebar-nav">
+      <a class="nav-link active" href="church-dashboard.html">
+        <span class="nav-icon">⌂</span> Dashboard
+      </a>
+      <a class="nav-link" href="preacher-control.html">
+        <span class="nav-icon">📖</span> Scripture Controls
+      </a>
+      <a class="nav-link" href="church-display.html">
+        <span class="nav-icon">🖥</span> Church Display
+      </a>
+      <a class="nav-link" href="programme.html">
+        <span class="nav-icon">▦</span> Service Programme
+      </a>
+      <a class="nav-link" href="index.html">
+        <span class="nav-icon">✦</span> Today's Word
+      </a>
+    </nav>
+
+    <div class="nav-label">Church Management</div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-link" href="#events">
+        <span class="nav-icon">🗓</span> Special Services & Events
+      </a>
+      <a class="nav-link" href="#study">
+        <span class="nav-icon">📚</span> Weekly Scripture Study
+      </a>
+      <a class="nav-link" href="#members">
+        <span class="nav-icon">👥</span> Members & Permissions
+      </a>
+      <a class="nav-link" href="church-branding.html">
+        <span class="nav-icon">🎨</span> Appearance & Branding
+      </a>
+      <a class="nav-link" href="#settings">
+        <span class="nav-icon">⚙</span> Church Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      Keeping Scripture Present<br>in Everyday Life
+    </div>
+  </aside>
+
+  <div class="main-area">
+
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Church Administration</div>
+        <div class="topbar-subtitle">
+          Your church's digital ministry workspace
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <a href="index.html">Public Home</a>
+        <button class="signout" id="signOutButton">
+          Sign Out
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <section class="welcome">
+        <div class="church-logo-wrap" id="churchLogoWrap">
+          <span id="churchInitial">C</span>
+        </div>
+
+        <div class="welcome-copy">
+          <h1 id="churchName">Your Church</h1>
+          <p>Welcome to your church management workspace.</p>
+        </div>
+
+        <div class="role" id="accountRole">Church Admin</div>
+      </section>
+
+      <section class="section-heading">
+        <div>
+          <h2>Church Overview</h2>
+          <p>Manage your church's Scripture experience and digital services.</p>
+        </div>
+        <span class="section-tag">ADMINISTRATION WORKSPACE</span>
+      </section>
+
+      <div class="dashboard-grid">
+
+        <article class="dashboard-card active">
+          <div class="card-icon">📖</div>
+          <div class="card-content">
+            <h3>Scripture Display</h3>
+            <p>Access the revolving Scripture display and preacher-controlled reading tools.</p>
+            <a class="card-link" href="preacher-control.html">
+              Open Scripture Controls →
+            </a>
+          </div>
+        </article>
+
+        <article class="dashboard-card active">
+          <div class="card-icon">🖥️</div>
+          <div class="card-content">
+            <h3>Church Display Screen</h3>
+            <p>Open the congregation-facing revolving Bible display.</p>
+            <a class="card-link" href="church-display.html">
+              View Church Display →
+            </a>
+          </div>
+        </article>
+
+        <article class="dashboard-card active">
+          <div class="card-icon">📅</div>
+          <div class="card-content">
+            <h3>Digital Service Programme</h3>
+            <p>View the public digital service programme for your congregation.</p>
+            <a class="card-link" href="programme.html">
+              View Programme →
+            </a>
+          </div>
+        </article>
+
+        <article class="dashboard-card active">
+          <div class="card-icon">✨</div>
+          <div class="card-content">
+            <h3>Today's Word</h3>
+            <p>Open the Scripture sharing page used by members and visitors.</p>
+            <a class="card-link" href="index.html">
+              View Today's Word →
+            </a>
+          </div>
+        </article>
+
+        <article class="dashboard-card" id="events">
+          <div class="card-icon">🗓️</div>
+          <div class="card-content">
+            <h3>Special Services & Events</h3>
+            <p>Future workspace for creating and managing special church services and events.</p>
+            <span class="coming">Coming soon</span>
+          </div>
+        </article>
+
+        <article class="dashboard-card" id="study">
+          <div class="card-icon">📚</div>
+          <div class="card-content">
+            <h3>Weekly Scripture Study</h3>
+            <p>Future workspace for publishing weekly studies and managing congregation discussions.</p>
+            <span class="coming">Coming soon</span>
+          </div>
+        </article>
+
+        <article class="dashboard-card" id="members">
+          <div class="card-icon">👥</div>
+          <div class="card-content">
+            <h3>Members & Permissions</h3>
+            <p>Future workspace for managing church members, roles and access permissions.</p>
+            <span class="coming">Coming soon</span>
+          </div>
+        </article>
+
+        <article class="dashboard-card active">
+          <div class="card-icon">🎨</div>
+          <div class="card-content">
+            <h3>Appearance & Branding</h3>
+            <p>Manage your church logo, approved colour themes, branding history and restoration settings.</p>
+            <a class="card-link" href="church-branding.html">
+              Manage Church Branding →
+            </a>
+          </div>
+        </article>
+
+        <article class="dashboard-card" id="settings">
+          <div class="card-icon">⚙️</div>
+          <div class="card-content">
+            <h3>Church Settings</h3>
+            <p>Future workspace for church profile and platform configuration.</p>
+            <span class="coming">Coming soon</span>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="bottom-note">
+        <strong>Revolving Bible:</strong>
+        Your church's digital Scripture and service workspace.
+        Additional administration features will become available as
+        they are developed and enabled for your church.
+      </div>
+
+    </main>
+
+    <footer>
+      Revolving Bible · Keeping Scripture Present in Everyday Life
+    </footer>
+
   </div>
-
-  <div class="dashboard-grid">
-
-    <article class="dashboard-card active">
-      <div class="card-icon">📖</div>
-      <h3>Scripture Display</h3>
-      <p>Access the revolving Scripture display and preacher-controlled reading tools.</p>
-      <a class="card-link" href="preacher-control.html">
-        Open Scripture Controls →
-      </a>
-    </article>
-
-    <article class="dashboard-card active">
-      <div class="card-icon">🖥️</div>
-      <h3>Church Display Screen</h3>
-      <p>Open the congregation-facing revolving Bible display.</p>
-      <a class="card-link" href="church-display.html">
-        View Church Display →
-      </a>
-    </article>
-
-    <article class="dashboard-card active">
-      <div class="card-icon">📅</div>
-      <h3>Digital Service Programme</h3>
-      <p>View the public digital service programme for your congregation.</p>
-      <a class="card-link" href="programme.html">
-        View Programme →
-      </a>
-    </article>
-
-    <article class="dashboard-card active">
-      <div class="card-icon">✨</div>
-      <h3>Today's Word</h3>
-      <p>Open the Scripture sharing page used by members and visitors.</p>
-      <a class="card-link" href="index.html">
-        View Today's Word →
-      </a>
-    </article>
-
-    <article class="dashboard-card">
-      <div class="card-icon">🗓️</div>
-      <h3>Special Services & Events</h3>
-      <p>Future workspace for creating and managing special church services and events.</p>
-      <span class="coming">Coming soon</span>
-    </article>
-
-    <article class="dashboard-card">
-      <div class="card-icon">📚</div>
-      <h3>Weekly Scripture Study</h3>
-      <p>Future workspace for publishing weekly studies and managing congregation discussions.</p>
-      <span class="coming">Coming soon</span>
-    </article>
-
-    <article class="dashboard-card">
-      <div class="card-icon">👥</div>
-      <h3>Members & Permissions</h3>
-      <p>Future workspace for managing church members, roles and access permissions.</p>
-      <span class="coming">Coming soon</span>
-    </article>
-    
-<article class="dashboard-card active">
-  <div class="card-icon">🎨</div>
-  <h3>Appearance & Branding</h3>
-  <p>Manage your church logo, approved colour themes, branding history and restoration settings.</p>
-  <a class="card-link" href="church-branding.html">
-    Manage Church Branding →
-  </a>
-</article>
-
-    <article class="dashboard-card">
-      <div class="card-icon">⚙️</div>
-      <h3>Church Settings</h3>
-      <p>Future workspace for church profile and platform configuration.</p>
-      <span class="coming">Coming soon</span>
-    </article>
-
-  </div>
-</main>
-
-<footer>
-  Revolving Bible · Keeping Scripture Present in Everyday Life
-</footer>
+</div>
 
 <script>
 const SUPABASE_URL =
@@ -517,7 +801,6 @@ const dashboardSection = document.getElementById("dashboardSection");
 const loginForm = document.getElementById("loginForm");
 const loginButton = document.getElementById("loginButton");
 const statusMessage = document.getElementById("statusMessage");
-const topActions = document.getElementById("topActions");
 
 function showMessage(message, type) {
   statusMessage.textContent = message;
@@ -525,22 +808,63 @@ function showMessage(message, type) {
 }
 
 function showLogin() {
-  loginSection.classList.remove("hidden");
   dashboardSection.classList.add("hidden");
-  topActions.classList.add("hidden");
+  loginSection.classList.remove("hidden");
 }
 
-function showDashboard(user, church, membership) {
+function applyChurchTheme(themeKey) {
+  document.body.classList.remove(
+    "theme-royal-blue",
+    "theme-natural-green",
+    "theme-charcoal-gold"
+  );
+
+  const allowedThemes = [
+    "forest_green",
+    "royal_blue",
+    "natural_green",
+    "charcoal_gold"
+  ];
+
+  if (allowedThemes.includes(themeKey) && themeKey !== "forest_green") {
+    document.body.classList.add("theme-" + themeKey.replace("_", "-"));
+  }
+}
+
+function showDashboard(church, membership) {
   document.getElementById("churchName").textContent = church.name;
+
   document.getElementById("churchInitial").textContent =
     church.name.charAt(0).toUpperCase();
 
   document.getElementById("accountRole").textContent =
     membership.role.replaceAll("_", " ");
 
+  const logoWrap = document.getElementById("churchLogoWrap");
+
+  logoWrap.innerHTML = "";
+
+  if (church.church_logo_url) {
+    const logo = document.createElement("img");
+    logo.src = church.church_logo_url;
+    logo.alt = church.name + " logo";
+    logo.onerror = function() {
+      logoWrap.innerHTML = "";
+      const initial = document.createElement("span");
+      initial.textContent = church.name.charAt(0).toUpperCase();
+      logoWrap.appendChild(initial);
+    };
+    logoWrap.appendChild(logo);
+  } else {
+    const initial = document.createElement("span");
+    initial.textContent = church.name.charAt(0).toUpperCase();
+    logoWrap.appendChild(initial);
+  }
+
+  applyChurchTheme(church.theme_key || "forest_green");
+
   loginSection.classList.add("hidden");
   dashboardSection.classList.remove("hidden");
-  topActions.classList.remove("hidden");
 
   statusMessage.textContent = "";
   statusMessage.className = "message";
@@ -597,7 +921,7 @@ async function verifyChurchAccess(user) {
   const { data: church, error: churchError } =
     await supabaseClient
       .from("churches")
-      .select("id, name")
+      .select("id, name, church_logo_url, theme_key")
       .eq("id", membership.church_id)
       .maybeSingle();
 
@@ -610,7 +934,7 @@ async function verifyChurchAccess(user) {
     return;
   }
 
-  showDashboard(user, church, membership);
+  showDashboard(church, membership);
 }
 
 async function checkExistingSession() {
@@ -632,6 +956,50 @@ async function checkExistingSession() {
     showLogin();
   }
 }
+
+loginForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  loginButton.disabled = true;
+  loginButton.textContent = "Signing in...";
+  statusMessage.textContent = "";
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+  loginButton.disabled = false;
+  loginButton.textContent = "Sign In";
+
+  if (error) {
+    showMessage(
+      "Sign-in unsuccessful. Please check your details and try again.",
+      "error"
+    );
+    return;
+  }
+
+  if (data.user) {
+    await verifyChurchAccess(data.user);
+  }
+});
+
+document.getElementById("signOutButton")
+  .addEventListener("click", async function() {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      alert("We could not sign you out. Please try again.");
+      return;
+    }
+
+    showLogin();
+  });
 
 checkExistingSession();
 </script>
