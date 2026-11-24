@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#123d2b" />
+  <meta name="description" content="View upcoming special services and events from our church." />
+  <title>Special Services & Events | Revolving Bible</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--forest:#123d2b;--forest-deep:#0b2c20;--gold:#d8b45a;--gold-light:#f0d98e;--ink:#203128;--muted:#66736b;--paper:#f5f7f3;--card:#fff;--line:#e3e9e2;--soft:#edf3ed;--shadow:0 12px 32px rgba(13,45,30,.09)}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',Arial,sans-serif;line-height:1.6}
+    a{color:inherit}
+    .topbar{background:var(--forest-deep);color:#fff;border-bottom:3px solid var(--gold)}
+    .topbar-inner{max-width:1120px;margin:auto;padding:15px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .brand{display:flex;align-items:center;gap:13px;min-width:0}
+    .brand img{width:56px;height:56px;object-fit:contain;background:#fff;border-radius:10px;padding:4px}
+    .brand-name{font-family:'Playfair Display',Georgia,serif;font-size:20px;font-weight:700;line-height:1.2}
+    .brand-sub{font-size:11px;letter-spacing:1.3px;text-transform:uppercase;color:var(--gold-light);margin-top:4px}
+    .home-link{color:#fff;text-decoration:none;border:1px solid rgba(240,217,142,.55);padding:9px 14px;border-radius:8px;font-weight:600;font-size:13px;white-space:nowrap}
+    .home-link:hover{background:rgba(255,255,255,.1)}
+    .hero{background:linear-gradient(135deg,var(--forest),#1d573c);color:#fff;text-align:center;padding:48px 20px 56px;border-bottom:5px solid var(--gold)}
+    .church-logo{width:76px;height:76px;object-fit:contain;border-radius:50%;background:#fff;padding:7px;margin:0 auto 12px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+    .eyebrow{font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold-light);font-weight:700}
+    h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(30px,5vw,46px);line-height:1.15;margin:10px 0 8px}
+    .hero p{max-width:650px;margin:0 auto;color:#e6eee8;font-size:16px}
+    .church-name{margin-top:18px;color:var(--gold-light);font-weight:600;font-size:14px}
+    main{max-width:1120px;margin:0 auto;padding:34px 22px 60px}
+    .section-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 18px}
+    .section-heading h2{font-family:'Playfair Display',Georgia,serif;color:var(--forest);font-size:27px;margin:0}
+    .section-heading p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .event-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+    .event-card{background:var(--card);border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .event-card.cancelled{border-color:#e8caca}
+    .card-top{padding:18px 20px 14px;background:var(--soft);border-bottom:1px solid var(--line)}
+    .cancelled .card-top{background:#fbefef}
+    .event-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .category{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--forest)}
+    .status-pill{font-size:10px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;padding:5px 9px;border-radius:30px;background:#e1eee4;color:#23563a}
+    .cancelled .status-pill{background:#f4dddd;color:#8d3030}
+    .event-card h3{font-family:'Playfair Display',Georgia,serif;font-size:23px;line-height:1.25;color:var(--forest-deep);margin:10px 0 0}
+    .card-body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:13px;flex:1}
+    .event-description{margin:0;color:#48564d;white-space:pre-wrap;overflow-wrap:anywhere}
+    .details{display:grid;gap:9px;margin-top:2px}
+    .detail{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#536158}
+    .detail-icon{width:20px;flex:0 0 20px;text-align:center;color:var(--forest);font-size:15px}
+    .detail strong{color:#263a2e;font-weight:700}
+    .card-actions{margin-top:auto;padding-top:5px}
+    .register-link{display:inline-block;background:var(--forest);color:#fff;text-decoration:none;padding:10px 15px;border-radius:8px;font-size:13px;font-weight:700}
+    .register-link:hover{background:var(--forest-deep)}
+    .notice{border-radius:12px;padding:16px 18px;margin:0 0 22px;background:#fff8e8;border:1px solid #ead7a6;color:#66501c;font-size:14px}
+    .state{background:#fff;border:1px solid var(--line);border-radius:14px;padding:30px 20px;text-align:center;color:var(--muted)}
+    .state strong{display:block;color:var(--forest);font-size:17px;margin-bottom:5px}
+    .retry{margin-top:12px;border:0;border-radius:8px;background:var(--forest);color:#fff;padding:10px 17px;font-weight:700;cursor:pointer}
+    .retry:hover{background:var(--forest-deep)}
+    .past-section{margin-top:42px}
+    .past-list{display:grid;gap:10px}
+    .past-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 16px;display:flex;justify-content:space-between;gap:15px;align-items:center}
+    .past-item strong{color:var(--forest)}
+    .past-item span{font-size:12px;color:var(--muted)}
+    footer{background:var(--forest-deep);color:#dce7df;text-align:center;padding:25px 18px;font-size:12px}
+    footer strong{color:var(--gold-light)}
+    footer a{color:var(--gold-light);text-decoration:none}
+    @media(max-width:700px){.event-grid{grid-template-columns:1fr}.hero{padding:38px 18px 44px}.section-heading{align-items:flex-start;flex-direction:column}.topbar-inner{padding:12px 15px}.brand img{width:48px;height:48px}.brand-name{font-size:17px}.home-link{padding:8px 10px;font-size:12px}main{padding:26px 15px 45px}}
+    @media(max-width:390px){.brand-sub{font-size:9px}.home-link{font-size:11px}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html" aria-label="Revolving Bible home" style="text-decoration:none">
+        <img src="assets/revolving-bible-logo.png" alt="Revolving Bible logo" onerror="this.style.display='none'">
+        <div><div class="brand-name">Revolving Bible</div><div class="brand-sub">Scripture • Worship • Community</div></div>
+      </a>
+      <a class="home-link" href="index.html">← Back to Home</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <img id="churchLogo" class="church-logo" alt="Church logo">
+    <div class="eyebrow">Church Life & Fellowship</div>
+    <h1>Special Services & Events</h1>
+    <p>Stay connected with upcoming services, gatherings and activities in our church community.</p>
+    <div id="churchName" class="church-name"></div>
+  </section>
+
+  <main>
+    <div id="cancelledNotice" class="notice" hidden></div>
+    <section aria-labelledby="upcomingHeading">
+      <div class="section-heading">
+        <div><h2 id="upcomingHeading">Upcoming Events</h2><p>Join us for worship, fellowship and community activities.</p></div>
+      </div>
+      <div id="upcomingState" class="state"><strong>Loading events…</strong>Please wait while we retrieve the latest church notices.</div>
+      <div id="upcomingEvents" class="event-grid"></div>
+    </section>
+
+    <section id="pastSection" class="past-section" hidden aria-labelledby="pastHeading">
+      <div class="section-heading"><div><h2 id="pastHeading">Recently Held Events</h2><p>A look back at recent church activities.</p></div></div>
+      <div id="pastEvents" class="past-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>Powered by Revolving Bible</strong></div>
+    <div>Sharing Scripture and strengthening church communities.</div>
+    <div style="margin-top:7px"><a href="index.html">Revolving Bible Home</a></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1"></script>
+  <script>
+    const SUPABASE_URL = 'https://tthgeaiokpltmfxxmibb.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t';
+    const CHURCH_ID = 'cd90c8c5-3931-4995-948b-9004dc398846';
+    const FALLBACK_CHURCH_NAME = 'Omara Road Seventhday Adventist Church';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    const categoryLabels = {
+      special_service: 'Special Service', prayer_meeting: 'Prayer Meeting', convention: 'Convention',
+      evangelistic_campaign: 'Evangelistic Campaign', conference: 'Conference', youth_event: 'Youth Event',
+      community_outreach: 'Community Outreach', other: 'Church Event'
+    };
+    let churchTimezone = 'America/Jamaica';
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    }
+    function safeWebUrl(value) {
+      if (!value) return '';
+      try { const url = new URL(value); return ['https:','http:'].includes(url.protocol) ? url.href : ''; }
+      catch { return ''; }
+    }
+    function formatDateTime(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      return new Intl.DateTimeFormat('en-JM', {
+        timeZone: churchTimezone, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+        hour: 'numeric', minute: '2-digit', hour12: true
+      }).format(date);
+    }
+    function formatDateOnly(value) {
+      if (!value) return '';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      return new Intl.DateTimeFormat('en-JM', {timeZone:churchTimezone, day:'numeric', month:'short', year:'numeric'}).format(date);
+    }
+    function renderEvent(event, isCancelled = false) {
+      const title = escapeHTML(event.title);
+      const category = escapeHTML(categoryLabels[event.event_type] || 'Church Event');
+      const description = event.description ? `<p class="event-description">${escapeHTML(event.description)}</p>` : '';
+      const start = formatDateTime(event.starts_at);
+      const end = event.ends_at ? formatDateTime(event.ends_at) : '';
+      const venue = event.venue ? `<div class="detail"><span class="detail-icon">⌖</span><div><strong>Venue</strong><br>${escapeHTML(event.venue)}</div></div>` : '';
+      const address = event.address ? `<div class="detail"><span class="detail-icon">⌂</span><div><strong>Location</strong><br>${escapeHTML(event.address)}</div></div>` : '';
+      const contact = event.contact_name ? `<div class="detail"><span class="detail-icon">♙</span><div><strong>Contact</strong><br>${escapeHTML(event.contact_name)}${event.contact_phone ? ` · ${escapeHTML(event.contact_phone)}` : ''}</div></div>` : (event.contact_phone ? `<div class="detail"><span class="detail-icon">☎</span><div><strong>Contact</strong><br>${escapeHTML(event.contact_phone)}</div></div>` : '');
+      const registrationUrl = safeWebUrl(event.registration_url);
+      const registration = registrationUrl && !isCancelled ? `<div class="card-actions"><a class="register-link" href="${escapeHTML(registrationUrl)}" target="_blank" rel="noopener noreferrer">Registration / More Information ↗</a></div>` : '';
+      return `<article class="event-card${isCancelled ? ' cancelled' : ''}">
+        <div class="card-top"><div class="event-meta"><span class="category">${category}</span><span class="status-pill">${isCancelled ? 'Cancelled' : 'Upcoming'}</span></div><h3>${title}</h3></div>
+        <div class="card-body">${description}<div class="details">
+          <div class="detail"><span class="detail-icon">▦</span><div><strong>${isCancelled ? 'Scheduled date' : 'Date & Time'}</strong><br>${escapeHTML(start || 'Date to be announced')}${end ? `<br><span>Until ${escapeHTML(end)}</span>` : ''}</div></div>
+          ${venue}${address}${contact}
+        </div>${registration}</div>
+      </article>`;
+    }
+    function showState(elementId, title, message, withRetry = false) {
+      const element = document.getElementById(elementId);
+      element.innerHTML = `<strong>${escapeHTML(title)}</strong>${escapeHTML(message)}${withRetry ? '<br><button class="retry" type="button" onclick="loadEvents()">Try Again</button>' : ''}`;
+      element.hidden = false;
+    }
+    async function loadChurchBranding() {
+      const {data, error} = await supabase.rpc('get_public_church_branding', {p_church_id: CHURCH_ID})
+        .maybeSingle();
+      if (error) {
+        console.warn('Church branding could not be loaded; using the default appearance.', error.message);
+        document.getElementById('churchName').textContent = FALLBACK_CHURCH_NAME;
+        return;
+      }
+      if (!data) {
+        document.getElementById('churchName').textContent = FALLBACK_CHURCH_NAME;
+        return;
+      }
+      document.getElementById('churchName').textContent = data.name || FALLBACK_CHURCH_NAME;
+      if (data.timezone) churchTimezone = data.timezone;
+      if (data.church_logo_url) {
+        const logo = document.getElementById('churchLogo');
+        logo.src = data.church_logo_url;
+        logo.onload = () => logo.style.display = 'block';
+        logo.onerror = () => logo.style.display = 'none';
+      }
+      const themes = {
+        forest_green: {forest:'#123d2b',deep:'#0b2c20',gold:'#d8b45a',soft:'#edf3ed'},
+        royal_blue: {forest:'#183b70',deep:'#10284d',gold:'#d8b45a',soft:'#edf2f9'},
+        natural_green: {forest:'#356344',deep:'#203f2b',gold:'#d9bd72',soft:'#eef4ed'},
+        charcoal_gold: {forest:'#343638',deep:'#202224',gold:'#d8b45a',soft:'#f0f0ee'}
+      };
+      const theme = themes[data.theme_key] || themes.forest_green;
+      const root = document.documentElement;
+      root.style.setProperty('--forest', theme.forest);
+      root.style.setProperty('--forest-deep', theme.deep);
+      root.style.setProperty('--gold', theme.gold);
+      root.style.setProperty('--soft', theme.soft);
+    }
+    async function loadEvents() {
+      const state = document.getElementById('upcomingState');
+      const upcomingContainer = document.getElementById('upcomingEvents');
+      const pastContainer = document.getElementById('pastEvents');
+      const pastSection = document.getElementById('pastSection');
+      const cancelledNotice = document.getElementById('cancelledNotice');
+      upcomingContainer.innerHTML = '';
+      pastContainer.innerHTML = '';
+      pastSection.hidden = true;
+      cancelledNotice.hidden = true;
+      showState('upcomingState', 'Loading events…', 'Please wait while we retrieve the latest church notices.');
+
+      const {data, error} = await supabase.from('church_events')
+        .select('id, title, event_type, description, starts_at, ends_at, venue, address, contact_name, contact_phone, registration_url, status')
+        .eq('church_id', CHURCH_ID)
+        .in('status', ['published','cancelled'])
+        .order('starts_at', {ascending:true});
+
+      if (error) {
+        console.error('Unable to load church events:', error);
+        showState('upcomingState', 'Events are temporarily unavailable', 'Please check your internet connection and try again.', true);
+        return;
+      }
+
+      const now = Date.now();
+      const published = (data || []).filter(event => event.status === 'published');
+      const cancelled = (data || []).filter(event => event.status === 'cancelled');
+      const upcoming = published.filter(event => {
+        const relevantEnd = event.ends_at ? new Date(event.ends_at).getTime() : new Date(event.starts_at).getTime();
+        return relevantEnd >= now;
+      });
+      const past = published.filter(event => {
+        const relevantEnd = event.ends_at ? new Date(event.ends_at).getTime() : new Date(event.starts_at).getTime();
+        return relevantEnd < now;
+      }).slice(-5).reverse();
+
+      if (upcoming.length) {
+        state.hidden = true;
+        upcomingContainer.innerHTML = upcoming.map(event => renderEvent(event, false)).join('');
+      } else {
+        showState('upcomingState', 'No upcoming events at the moment', 'Please check back soon for new church services and activities.');
+      }
+
+      const visibleCancelled = cancelled.filter(event => new Date(event.starts_at).getTime() >= now || !event.starts_at);
+      if (visibleCancelled.length) {
+        cancelledNotice.innerHTML = `<strong>Event notices:</strong> ${visibleCancelled.length} event${visibleCancelled.length === 1 ? ' has' : 's have'} been marked as cancelled. Please review the notice${visibleCancelled.length === 1 ? '' : 's'} below.`;
+        cancelledNotice.hidden = false;
+        upcomingContainer.insertAdjacentHTML('beforeend', visibleCancelled.map(event => renderEvent(event, true)).join(''));
+      }
+
+      if (past.length) {
+        pastSection.hidden = false;
+        pastContainer.innerHTML = past.map(event => `<div class="past-item"><strong>${escapeHTML(event.title)}</strong><span>${escapeHTML(formatDateOnly(event.starts_at))}</span></div>`).join('');
+      }
+    }
+    async function initPage() {
+      await loadChurchBranding();
+      await loadEvents();
+    }
+    initPage();
+  </script>
+</body>
+</html>
