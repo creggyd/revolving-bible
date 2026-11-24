@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Church Dashboard | Revolving Bible</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 :root {
   --green: #123d2b;
@@ -332,79 +330,88 @@ button, input { font: inherit; }
 
 .card-link:hover { text-decoration: underline; }
 
+
 .overview-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 22px;
-  margin-top: 24px;
+  margin-top: 18px;
 }
 
 .overview-card {
-  background: #ffffff;
-  border: 1px solid #e5e9e6;
-  border-radius: 14px;
-  padding: 24px;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--green);
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+  min-width: 0;
 }
 
-.overview-heading {
-  margin-top: 30px;
-}
-
-.overview-heading h2 {
-  color: #173f32;
-  margin-bottom: 6px;
-}
-
-.overview-heading p {
-  color: #718078;
+.overview-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
 }
 
 .overview-icon {
-  font-size: 28px;
-  margin-bottom: 14px;
+  font-size: 27px;
+}
+
+.overview-status {
+  display: inline-block;
+  background: #edf3ed;
+  color: var(--green);
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: bold;
 }
 
 .overview-card h3 {
-  color: #173f32;
-  margin-bottom: 10px;
+  color: var(--green);
+  font-size: 16px;
+  margin: 0 0 9px;
+}
+
+.overview-card p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 12px;
 }
 
 .overview-detail {
-  color: #68766e;
-  line-height: 1.6;
-  min-height: 48px;
-}
-
-.overview-status,
-.overview-coming {
-  display: block;
+  color: var(--muted);
   font-size: 12px;
-  margin: 14px 0;
-  color: #47745d;
+  line-height: 1.5;
+  min-height: 36px;
 }
 
 .overview-coming {
+  display: inline-block;
+  margin-top: 12px;
   color: #8a7650;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .overview-link {
   display: inline-block;
-  color: #98752b;
-  font-weight: 600;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: bold;
   text-decoration: none;
-  margin-top: 8px;
+  margin-top: 15px;
 }
 
 .overview-link:hover {
+  color: #98752b;
   text-decoration: underline;
 }
 
-@media (max-width: 560px) {
-  .overview-grid {
-    grid-template-columns: 1fr;
-  }
-}
 .bottom-note {
   margin-top: 27px;
   background: #edf2ed;
@@ -614,39 +621,35 @@ body.theme-charcoal-gold {
 
 <body>
 
+<!-- Sign-in screen -->
 <section class="login-wrap hidden" id="loginSection">
   <div class="login-box">
     <div class="login-logo">
-      <img src="assets/revolving-bible-logo.png"
-           alt="Revolving Bible logo">
+      <img src="assets/revolving-bible-logo.png" alt="Revolving Bible logo">
       <h1>Church Sign In</h1>
       <p>Access your church's Revolving Bible workspace.</p>
     </div>
 
     <form id="loginForm">
       <label for="email">Email Address</label>
-      <input id="email" type="email" required
-             autocomplete="username">
+      <input id="email" type="email" required autocomplete="username">
 
       <label for="password">Password</label>
-      <input id="password" type="password" required
-             autocomplete="current-password">
+      <input id="password" type="password" required autocomplete="current-password">
 
-      <button class="login-button" id="loginButton"
-              type="submit">Sign In</button>
+      <button class="login-button" id="loginButton" type="submit">Sign In</button>
     </form>
 
-    <div id="statusMessage" class="message"
-         role="status" aria-live="polite"></div>
+    <div id="statusMessage" class="message" role="status" aria-live="polite"></div>
   </div>
 </section>
 
+<!-- Authenticated church administration workspace -->
 <div class="app-shell hidden" id="dashboardSection">
 
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <img src="assets/revolving-bible-logo.png"
-           alt="Revolving Bible logo">
+      <img src="assets/revolving-bible-logo.png" alt="Revolving Bible logo">
       <div>
         <h1>Revolving Bible</h1>
         <p>Church Management Portal</p>
@@ -654,8 +657,7 @@ body.theme-charcoal-gold {
     </div>
 
     <div class="nav-label">Main Workspace</div>
-
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" aria-label="Main workspace">
       <a class="nav-link active" href="church-dashboard.html">
         <span class="nav-icon">⌂</span> Dashboard
       </a>
@@ -674,8 +676,7 @@ body.theme-charcoal-gold {
     </nav>
 
     <div class="nav-label">Church Management</div>
-
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" aria-label="Church management">
       <a class="nav-link" href="#events">
         <span class="nav-icon">🗓</span> Special Services & Events
       </a>
@@ -699,25 +700,19 @@ body.theme-charcoal-gold {
   </aside>
 
   <div class="main-area">
-
     <header class="topbar">
       <div>
         <div class="topbar-title">Church Administration</div>
-        <div class="topbar-subtitle">
-          Your church's digital ministry workspace
-        </div>
+        <div class="topbar-subtitle">Your church's digital ministry workspace</div>
       </div>
 
       <div class="top-actions">
         <a href="index.html">Public Home</a>
-        <button class="signout" id="signOutButton">
-          Sign Out
-        </button>
+        <button class="signout" id="signOutButton" type="button">Sign Out</button>
       </div>
     </header>
 
     <main class="content">
-
       <section class="welcome">
         <div class="church-logo-wrap" id="churchLogoWrap">
           <span id="churchInitial">C</span>
@@ -731,243 +726,79 @@ body.theme-charcoal-gold {
         <div class="role" id="accountRole">Church Admin</div>
       </section>
 
-      
-<section class="section-heading">
-  <div>
-    <h2>Church Overview</h2>
-    <p>A snapshot of your church's digital ministry.</p>
-  </div>
-  <span class="section-tag">ADMINISTRATION OVERVIEW</span>
-</section>
-
-<div class="overview-grid">
-
-  <article class="overview-card">
-    <div class="overview-heading">
-      <span class="overview-icon">📖</span>
-      <span class="overview-status">Scripture</span>
-    </div>
-    <h3>Revolving Scripture</h3>
-    <p>Your church's rotating Bible passage display.</p>
-    <div class="overview-detail">
-      Scripture display information will appear here.
-    </div>
-    <a href="church-display.html" class="overview-link">
-      Open Church Display →
-    </a>
-  </article>
-
-  <article class="overview-card">
-    <div class="overview-heading">
-      <span class="overview-icon">📅</span>
-      <span class="overview-status">Services</span>
-    </div>
-    <h3>Upcoming Services & Events</h3>
-    <p>Keep track of scheduled church services and activities.</p>
-    <div class="overview-detail">
-      Upcoming service information will appear here.
-    </div>
-    <a href="programme.html" class="overview-link">
-      View Service Programme →
-    </a>
-  </article>
-
-  <article class="overview-card">
-    <div class="overview-heading">
-      <span class="overview-icon">👥</span>
-      <span class="overview-status">Membership</span>
-    </div>
-    <h3>Church Membership</h3>
-    <p>Manage church membership and assigned access permissions.</p>
-    <div class="overview-detail">
-      Membership statistics will appear here.
-    </div>
-    <span class="overview-coming">Management feature planned</span>
-  </article>
-
-  <article class="overview-card">
-    <div class="overview-heading">
-      <span class="overview-icon">🔔</span>
-      <span class="overview-status">Activity</span>
-    </div>
-    <h3>Recent Church Activity</h3>
-    <p>Keep track of important updates to your church workspace.</p>
-    <div class="overview-detail">
-      Recent administrative activity will appear here.
-    </div>
-    <span class="overview-coming">Activity tracking planned</span>
-  </article>
-
-</div>
-
-<div class="bottom-note">
-  <strong>Revolving Bible:</strong>
-  Your central digital workspace for Scripture, church services,
-  member engagement and church administration.
-</div>
-
+      <section class="section-heading">
+        <div>
+          <h2>Church Overview</h2>
           <p>Manage your church's Scripture experience and digital services.</p>
         </div>
         <span class="section-tag">ADMINISTRATION WORKSPACE</span>
       </section>
 
-     <section class="overview-section">
-  <div class="overview-heading">
-    <h2>Church Overview</h2>
-    <p>A quick look at your church's digital activity.</p>
-  </div>
+      <section class="overview-grid" aria-label="Church overview">
 
-  <div class="overview-grid">
-
-    <article class="overview-card">
-      <div class="overview-icon">📖</div>
-      <h3>Revolving Scripture</h3>
-      <p class="overview-detail">
-        Your church's Scripture display and current passage.
-      </p>
-      <span class="overview-status">Display available</span>
-      <a class="overview-link" href="church-display.html">
-        View Scripture Display →
-      </a>
-    </article>
-
-    <article class="overview-card">
-      <div class="overview-icon">📅</div>
-      <h3>Upcoming Services & Events</h3>
-      <p class="overview-detail">
-        Upcoming church services and scheduled activities.
-      </p>
-      <span class="overview-status">Programme information will appear here</span>
-      <a class="overview-link" href="programme.html">
-        View Service Programme →
-      </a>
-    </article>
-
-    <article class="overview-card">
-      <div class="overview-icon">👥</div>
-      <h3>Church Membership</h3>
-      <p class="overview-detail">
-        An overview of your church's registered members.
-      </p>
-      <span class="overview-coming">Membership management planned</span>
-    </article>
-
-    <article class="overview-card">
-      <div class="overview-icon">📋</div>
-      <h3>Recent Church Activity</h3>
-      <p class="overview-detail">
-        A record of recent administrative changes and activity.
-      </p>
-      <span class="overview-coming">Activity tracking planned</span>
-    </article>
-
-  </div>
-</section>
-
-        <article class="dashboard-card active">
-          <div class="card-icon">🖥️</div>
-          <div class="card-content">
-            <h3>Church Display Screen</h3>
-            <p>Open the congregation-facing revolving Bible display.</p>
-            <a class="card-link" href="church-display.html">
-              View Church Display →
-            </a>
+        <article class="overview-card">
+          <div class="overview-card-top">
+            <span class="overview-icon">📖</span>
+            <span class="overview-status">Scripture</span>
           </div>
+          <h3>Revolving Scripture</h3>
+          <p>Your church's rotating Bible passage display.</p>
+          <div class="overview-detail">Scripture display information will appear here.</div>
+          <a href="church-display.html" class="overview-link">Open Church Display →</a>
         </article>
 
-        <article class="dashboard-card active">
-          <div class="card-icon">📅</div>
-          <div class="card-content">
-            <h3>Digital Service Programme</h3>
-            <p>View the public digital service programme for your congregation.</p>
-            <a class="card-link" href="programme.html">
-              View Programme →
-            </a>
+        <article class="overview-card">
+          <div class="overview-card-top">
+            <span class="overview-icon">📅</span>
+            <span class="overview-status">Services</span>
           </div>
+          <h3>Upcoming Services & Events</h3>
+          <p>Keep track of scheduled church services and activities.</p>
+          <div class="overview-detail">Upcoming service information will appear here.</div>
+          <a href="programme.html" class="overview-link">View Service Programme →</a>
         </article>
 
-        <article class="dashboard-card active">
-          <div class="card-icon">✨</div>
-          <div class="card-content">
-            <h3>Today's Word</h3>
-            <p>Open the Scripture sharing page used by members and visitors.</p>
-            <a class="card-link" href="index.html">
-              View Today's Word →
-            </a>
+        <article class="overview-card" id="members">
+          <div class="overview-card-top">
+            <span class="overview-icon">👥</span>
+            <span class="overview-status">Membership</span>
           </div>
+          <h3>Church Membership</h3>
+          <p>Manage church membership and assigned access permissions.</p>
+          <div class="overview-detail">Membership statistics will appear here.</div>
+          <span class="overview-coming">Management feature planned</span>
         </article>
 
-        <article class="dashboard-card" id="events">
-          <div class="card-icon">🗓️</div>
-          <div class="card-content">
-            <h3>Special Services & Events</h3>
-            <p>Future workspace for creating and managing special church services and events.</p>
-            <span class="coming">Coming soon</span>
+        <article class="overview-card">
+          <div class="overview-card-top">
+            <span class="overview-icon">🔔</span>
+            <span class="overview-status">Activity</span>
           </div>
+          <h3>Recent Church Activity</h3>
+          <p>Keep track of important updates to your church workspace.</p>
+          <div class="overview-detail">Recent administrative activity will appear here.</div>
+          <span class="overview-coming">Activity tracking planned</span>
         </article>
 
-        <article class="dashboard-card" id="study">
-          <div class="card-icon">📚</div>
-          <div class="card-content">
-            <h3>Weekly Scripture Study</h3>
-            <p>Future workspace for publishing weekly studies and managing congregation discussions.</p>
-            <span class="coming">Coming soon</span>
-          </div>
-        </article>
-
-        <article class="dashboard-card" id="members">
-          <div class="card-icon">👥</div>
-          <div class="card-content">
-            <h3>Members & Permissions</h3>
-            <p>Future workspace for managing church members, roles and access permissions.</p>
-            <span class="coming">Coming soon</span>
-          </div>
-        </article>
-
-        <article class="dashboard-card active">
-          <div class="card-icon">🎨</div>
-          <div class="card-content">
-            <h3>Appearance & Branding</h3>
-            <p>Manage your church logo, approved colour themes, branding history and restoration settings.</p>
-            <a class="card-link" href="church-branding.html">
-              Manage Church Branding →
-            </a>
-          </div>
-        </article>
-
-        <article class="dashboard-card" id="settings">
-          <div class="card-icon">⚙️</div>
-          <div class="card-content">
-            <h3>Church Settings</h3>
-            <p>Future workspace for church profile and platform configuration.</p>
-            <span class="coming">Coming soon</span>
-          </div>
-        </article>
-
-      </div>
+      </section>
 
       <div class="bottom-note">
         <strong>Revolving Bible:</strong>
-        Your church's digital Scripture and service workspace.
-        Additional administration features will become available as
-        they are developed and enabled for your church.
+        Your central digital workspace for Scripture, church services,
+        member engagement and church administration. Additional features
+        will become available as they are developed and enabled for your church.
       </div>
-
     </main>
 
     <footer>
       Revolving Bible · Keeping Scripture Present in Everyday Life
     </footer>
-
   </div>
 </div>
 
 <script>
-const SUPABASE_URL =
-  "https://tthgeaiokpltmfxxmibb.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
+const SUPABASE_URL = "https://tthgeaiokpltmfxxmibb.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
@@ -1011,15 +842,12 @@ function applyChurchTheme(themeKey) {
 
 function showDashboard(church, membership) {
   document.getElementById("churchName").textContent = church.name;
-
   document.getElementById("churchInitial").textContent =
     church.name.charAt(0).toUpperCase();
-
   document.getElementById("accountRole").textContent =
     membership.role.replaceAll("_", " ");
 
   const logoWrap = document.getElementById("churchLogoWrap");
-
   logoWrap.innerHTML = "";
 
   if (church.church_logo_url) {
@@ -1040,10 +868,8 @@ function showDashboard(church, membership) {
   }
 
   applyChurchTheme(church.theme_key || "forest_green");
-
   loginSection.classList.add("hidden");
   dashboardSection.classList.remove("hidden");
-
   statusMessage.textContent = "";
   statusMessage.className = "message";
 }
@@ -1116,8 +942,7 @@ async function verifyChurchAccess(user) {
 }
 
 async function checkExistingSession() {
-  const { data, error } =
-    await supabaseClient.auth.getSession();
+  const { data, error } = await supabaseClient.auth.getSession();
 
   if (error) {
     showLogin();
@@ -1137,7 +962,6 @@ async function checkExistingSession() {
 
 loginForm.addEventListener("submit", async function(event) {
   event.preventDefault();
-
   loginButton.disabled = true;
   loginButton.textContent = "Signing in...";
   statusMessage.textContent = "";
@@ -1145,11 +969,10 @@ loginForm.addEventListener("submit", async function(event) {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  const { data, error } =
-    await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
 
   loginButton.disabled = false;
   loginButton.textContent = "Sign In";
