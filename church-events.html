@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Special Services & Events | Revolving Bible</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--green:#123d2b;--green-dark:#0b2b1e;--gold:#d7b45a;--background:#f4f6f3;--panel:#fff;--text:#26352c;--muted:#718078;--border:#e2e8e3;--shadow:0 5px 18px rgba(15,45,30,.07)}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--background);color:var(--text)}button,input,select,textarea{font:inherit}.hidden{display:none!important}
+.topbar{min-height:82px;background:var(--green);color:#fff;border-bottom:4px solid var(--gold);padding:15px 28px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:13px}.brand img{width:54px;height:54px;object-fit:contain}.brand strong{display:block;font-size:18px}.brand small{display:block;color:#e0d4ad;font-size:12px;margin-top:4px}
+.top-actions{display:flex;gap:15px;align-items:center}.top-actions a{color:#fff;text-decoration:none;font-size:13px}.signout{border:1px solid var(--gold);background:transparent;color:white;padding:9px 14px;border-radius:7px;cursor:pointer}
+.container{max-width:1440px;margin:auto;padding:26px 28px 45px}.welcome{background:#fff;border:1px solid var(--border);border-radius:13px;padding:20px 22px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow);margin-bottom:25px}
+.church-logo{width:62px;height:62px;flex:0 0 62px;border-radius:11px;background:#edf2ed;display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--green);font-size:25px;font-weight:bold}.church-logo img{width:100%;height:100%;object-fit:contain}
+.welcome-copy{min-width:0}.welcome h1{font-size:21px;margin:0 0 6px}.welcome p{font-size:13px;color:var(--muted);margin:0}.role{margin-left:auto;background:#edf3ed;color:var(--green);padding:8px 12px;border-radius:20px;font-size:11px;font-weight:bold;text-transform:capitalize;white-space:nowrap}
+.page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin:22px 0 16px}.page-heading h2{margin:0 0 6px;font-size:21px}.page-heading p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.tag{color:var(--green);font-size:11px;font-weight:bold}
+.layout{display:grid;grid-template-columns:minmax(320px,.88fr) minmax(0,1.4fr);gap:20px;align-items:start}.panel{background:#fff;border:1px solid var(--border);border-radius:12px;padding:22px;box-shadow:var(--shadow);min-width:0}.panel h3{margin:0 0 7px;color:var(--green);font-size:17px}.panel-intro{margin:0 0 18px;color:var(--muted);font-size:12px;line-height:1.5}
+.field{margin:0 0 14px}.field label{display:block;font-size:12px;font-weight:bold;margin:0 0 7px}.field input,.field select,.field textarea{width:100%;border:1px solid #ccd5ce;border-radius:7px;padding:11px 12px;background:#fff;color:var(--text);font-size:13px}.field textarea{min-height:92px;resize:vertical;line-height:1.5}.field small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.4}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:7px;padding:11px 15px;font-size:12px;font-weight:bold;cursor:pointer}.btn:disabled{opacity:.55;cursor:wait}.primary{background:var(--green);color:#fff}.secondary{background:#edf1ed;color:var(--text)}.danger{background:#fff0ee;color:#a22b20}.gold{background:var(--gold);color:var(--green-dark)}
+.message{margin:0 0 16px;padding:11px 13px;border-radius:7px;font-size:12px;line-height:1.5;display:none}.message.show{display:block}.message.error{background:#fff0ee;color:#a22b20}.message.success{background:#edf5ee;color:#245d35}.message.info{background:#edf3f7;color:#31556b}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.toolbar input,.toolbar select{border:1px solid #ccd5ce;border-radius:7px;padding:10px;font-size:12px;background:white}.toolbar input{flex:1;min-width:150px}
+.event-list{display:grid;gap:12px}.event-card{border:1px solid var(--border);border-left:4px solid var(--green);border-radius:9px;padding:15px;background:#fff}.event-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.event-card h4{margin:0 0 6px;font-size:15px;color:var(--green)}.event-meta{font-size:11px;color:var(--muted);line-height:1.6}.event-description{font-size:12px;line-height:1.5;color:#526158;margin:10px 0 0;white-space:pre-wrap}.status{display:inline-block;padding:5px 8px;border-radius:20px;font-size:10px;font-weight:bold;text-transform:capitalize;white-space:nowrap;background:#edf1ed;color:#526158}.status.published{background:#e8f4e9;color:#28643a}.status.cancelled{background:#fff0e4;color:#98521e}.status.archived{background:#ececf0;color:#606078}.status.draft{background:#f4f0df;color:#806a27}
+.event-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.event-actions button{border:1px solid var(--border);background:#f7f9f7;border-radius:6px;padding:7px 9px;font-size:11px;cursor:pointer;color:var(--green);font-weight:bold}.event-actions button.delete{color:#a22b20}
+.empty{padding:28px 12px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed #cbd5cd;border-radius:8px}
+.login-wrap{max-width:430px;margin:70px auto;padding:0 18px}.login-box{background:#fff;border:1px solid var(--border);border-radius:14px;padding:30px;box-shadow:var(--shadow)}.login-logo{text-align:center;margin-bottom:22px}.login-logo img{width:95px;height:95px;object-fit:contain}.login-logo h1{font-size:21px;color:var(--green);margin:8px 0 5px}.login-logo p{font-size:12px;color:var(--muted);margin:0}.login-box label{display:block;font-size:12px;font-weight:bold;margin:15px 0 7px}.login-box input{width:100%;padding:12px;border:1px solid #ccd5ce;border-radius:7px}.login-button{width:100%;padding:13px;background:var(--green);color:white;border:0;border-radius:7px;margin-top:20px;font-weight:bold;cursor:pointer}
+footer{text-align:center;padding:20px;color:var(--muted);font-size:11px}
+body.theme-royal-blue{--green:#173b70;--green-dark:#10294d}body.theme-natural-green{--green:#356344;--green-dark:#203f2b}body.theme-charcoal-gold{--green:#343434;--green-dark:#202020}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.container{padding:20px 16px 35px}}
+@media(max-width:560px){.topbar{padding:12px 15px}.brand img{width:44px;height:44px}.brand strong{font-size:15px}.top-actions a{display:none}.welcome{align-items:flex-start;flex-wrap:wrap;padding:16px}.role{margin-left:0}.two-col{grid-template-columns:1fr}.panel{padding:17px}.page-heading{align-items:flex-start;flex-direction:column}.event-top{flex-direction:column}}
+</style>
+</head>
+<body>
+<section class="login-wrap hidden" id="loginSection">
+  <div class="login-box">
+    <div class="login-logo"><img src="assets/revolving-bible-logo.png" alt="Revolving Bible logo"><h1>Church Sign In</h1><p>Access your church's events workspace.</p></div>
+    <form id="loginForm">
+      <label for="email">Email Address</label><input id="email" type="email" required autocomplete="username">
+      <label for="password">Password</label><input id="password" type="password" required autocomplete="current-password">
+      <button class="login-button" id="loginButton" type="submit">Sign In</button>
+    </form>
+    <div id="loginMessage" class="message" role="status" aria-live="polite"></div>
+    <p style="text-align:center;font-size:12px"><a href="church-dashboard.html" style="color:var(--green)">Return to Church Dashboard</a></p>
+  </div>
+</section>
+
+<div id="workspace" class="hidden">
+<header class="topbar">
+  <div class="brand"><img src="assets/revolving-bible-logo.png" alt="Revolving Bible logo"><div><strong>Revolving Bible</strong><small>Special Services & Events</small></div></div>
+  <div class="top-actions"><a href="church-dashboard.html">Church Dashboard</a><a href="index.html">Public Home</a><button class="signout" id="signOutButton" type="button">Sign Out</button></div>
+</header>
+<main class="container">
+  <section class="welcome">
+    <div class="church-logo" id="churchLogo"><span id="churchInitial">C</span></div>
+    <div class="welcome-copy"><h1 id="churchName">Your Church</h1><p>Manage your church's special services and events.</p></div>
+    <div class="role" id="accountRole">Church Staff</div>
+  </section>
+  <div class="page-heading"><div><h2>Special Services & Events</h2><p>Create and manage church events. Only published events are visible on the public events page.</p></div><span class="tag">CHURCH MANAGEMENT</span></div>
+  <div id="pageMessage" class="message" role="status" aria-live="polite"></div>
+  <div class="layout">
+    <section class="panel">
+      <h3 id="formTitle">Create an Event</h3>
+      <p class="panel-intro">Add the event details below. Save as a draft if it is not ready for the congregation.</p>
+      <form id="eventForm">
+        <div class="field"><label for="eventTitle">Event Title *</label><input id="eventTitle" maxlength="150" minlength="3" required placeholder="e.g. Annual Youth Convention"></div>
+        <div class="two-col">
+          <div class="field"><label for="eventType">Event Category *</label><select id="eventType" required>
+            <option value="special_service">Special Service</option><option value="prayer_meeting">Prayer Meeting</option><option value="convention">Convention</option><option value="evangelistic_campaign">Evangelistic Campaign</option><option value="conference">Conference</option><option value="youth_event">Youth Event</option><option value="community_outreach">Community Outreach</option><option value="other">Other</option>
+          </select></div>
+          <div class="field"><label for="eventStatus">Publication Status *</label><select id="eventStatus"><option value="draft">Draft — private</option><option value="published">Published — public</option><option value="cancelled">Cancelled — public notice</option><option value="archived">Archived — private</option></select></div>
+        </div>
+        <div class="field"><label for="eventDescription">Description</label><textarea id="eventDescription" placeholder="Share details about the event..."></textarea></div>
+        <div class="two-col">
+          <div class="field"><label for="startsAt">Start Date & Time *</label><input id="startsAt" type="datetime-local" required></div>
+          <div class="field"><label for="endsAt">End Date & Time</label><input id="endsAt" type="datetime-local"></div>
+        </div>
+        <div class="field"><label for="venue">Venue</label><input id="venue" maxlength="180" placeholder="Church hall, sanctuary, etc."></div>
+        <div class="field"><label for="address">Address / Location Details</label><input id="address" maxlength="250" placeholder="Street, town or directions"></div>
+        <div class="two-col">
+          <div class="field"><label for="contactName">Contact Person</label><input id="contactName" maxlength="120"></div>
+          <div class="field"><label for="contactPhone">Contact Phone</label><input id="contactPhone" maxlength="50" type="tel"></div>
+        </div>
+        <div class="field"><label for="registrationUrl">Registration Link</label><input id="registrationUrl" type="url" placeholder="https://..."><small>Optional. Enter the complete web address, including https://.</small></div>
+        <div class="actions">
+          <button class="btn primary" id="saveButton" type="submit">Save Event</button>
+          <button class="btn secondary" id="resetButton" type="button">Clear Form</button>
+        </div>
+      </form>
+    </section>
+    <section class="panel">
+      <h3>Manage Events</h3>
+      <p class="panel-intro">Review your church's event records. Draft and archived records remain private to authorised church personnel.</p>
+      <div class="toolbar">
+        <input id="searchEvents" type="search" placeholder="Search event titles...">
+        <select id="filterStatus" aria-label="Filter by status"><option value="all">All statuses</option><option value="draft">Draft</option><option value="published">Published</option><option value="cancelled">Cancelled</option><option value="archived">Archived</option></select>
+        <button class="btn secondary" id="refreshButton" type="button">Refresh</button>
+      </div>
+      <div id="eventList" class="event-list"><div class="empty">Loading events...</div></div>
+    </section>
+  </div>
+</main>
+<footer>Revolving Bible · Keeping Scripture Present in Everyday Life</footer>
+</div>
+
+<script>
+const SUPABASE_URL = "https://tthgeaiokpltmfxxmibb.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let currentUser = null;
+let currentChurch = null;
+let currentMembership = null;
+let events = [];
+let editingEventId = null;
+const allowedRoles = ["church_admin", "pastor", "elder", "service_operator"];
+const $ = id => document.getElementById(id);
+
+function showMessage(element, message, type="info") {
+  element.textContent = message;
+  element.className = "message show " + type;
+}
+function clearMessage(element) { element.textContent = ""; element.className = "message"; }
+function applyTheme(themeKey) {
+  document.body.classList.remove("theme-royal-blue","theme-natural-green","theme-charcoal-gold");
+  if (["royal_blue","natural_green","charcoal_gold"].includes(themeKey)) {
+    document.body.classList.add("theme-" + themeKey.replace("_","-"));
+  }
+}
+function showLogin(message="", type="info") {
+  $("workspace").classList.add("hidden");
+  $("loginSection").classList.remove("hidden");
+  if (message) showMessage($("loginMessage"), message, type);
+}
+function showWorkspace() {
+  $("loginSection").classList.add("hidden");
+  $("workspace").classList.remove("hidden");
+}
+function escapeHtml(value="") {
+  return String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+}
+function formatDate(value) {
+  if (!value) return "";
+  return new Intl.DateTimeFormat("en-JM", {dateStyle:"medium",timeStyle:"short",timeZone:currentChurch?.timezone || "America/Jamaica"}).format(new Date(value));
+}
+function toLocalInput(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  const parts = new Intl.DateTimeFormat("en-CA", {timeZone:currentChurch?.timezone || "America/Jamaica",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(date);
+  const p = Object.fromEntries(parts.map(x => [x.type,x.value]));
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;
+}
+function toIso(value) {
+  if (!value) return null;
+  // datetime-local is interpreted in the visitor's local timezone; the project pilot is Jamaica.
+  return new Date(value).toISOString();
+}
+function categoryLabel(value) {
+  return ({special_service:"Special Service",prayer_meeting:"Prayer Meeting",convention:"Convention",evangelistic_campaign:"Evangelistic Campaign",conference:"Conference",youth_event:"Youth Event",community_outreach:"Community Outreach",other:"Other"})[value] || "Other";
+}
+function resetForm() {
+  editingEventId = null;
+  $("eventForm").reset();
+  $("formTitle").textContent = "Create an Event";
+  $("saveButton").textContent = "Save Event";
+  $("eventStatus").value = "draft";
+  clearMessage($("pageMessage"));
+}
+function populateForm(event) {
+  editingEventId = event.id;
+  $("formTitle").textContent = "Edit Event";
+  $("saveButton").textContent = "Update Event";
+  $("eventTitle").value = event.title || "";
+  $("eventType").value = event.event_type || "other";
+  $("eventStatus").value = event.status || "draft";
+  $("eventDescription").value = event.description || "";
+  $("startsAt").value = toLocalInput(event.starts_at);
+  $("endsAt").value = toLocalInput(event.ends_at);
+  $("venue").value = event.venue || "";
+  $("address").value = event.address || "";
+  $("contactName").value = event.contact_name || "";
+  $("contactPhone").value = event.contact_phone || "";
+  $("registrationUrl").value = event.registration_url || "";
+  $("formTitle").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function canDelete() {
+  return ["church_admin","pastor"].includes(currentMembership?.role);
+}
+function renderEvents() {
+  const query = $("searchEvents").value.trim().toLowerCase();
+  const status = $("filterStatus").value;
+  const filtered = events.filter(event =>
+    (status === "all" || event.status === status) &&
+    (!query || event.title.toLowerCase().includes(query))
+  );
+  const list = $("eventList");
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty">No events match this view. Create an event or adjust the filters.</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(event => {
+    const details = [
+      categoryLabel(event.event_type),
+      formatDate(event.starts_at),
+      event.venue ? escapeHtml(event.venue) : "",
+      event.ends_at ? "Ends " + formatDate(event.ends_at) : ""
+    ].filter(Boolean).join(" · ");
+    const description = event.description ? `<p class="event-description">${escapeHtml(event.description)}</p>` : "";
+    const deleteButton = canDelete() ? `<button class="delete" data-action="delete" data-id="${event.id}">Delete</button>` : "";
+    return `<article class="event-card">
+      <div class="event-top"><div><h4>${escapeHtml(event.title)}</h4><div class="event-meta">${details}</div></div><span class="status ${event.status}">${escapeHtml(event.status)}</span></div>
+      ${description}
+      <div class="event-actions">
+        <button data-action="edit" data-id="${event.id}">Edit</button>
+        ${event.status !== "published" ? `<button data-action="publish" data-id="${event.id}">Publish</button>` : `<button data-action="cancel" data-id="${event.id}">Mark Cancelled</button>`}
+        ${event.status !== "archived" ? `<button data-action="archive" data-id="${event.id}">Archive</button>` : `<button data-action="draft" data-id="${event.id}">Restore to Draft</button>`}
+        ${deleteButton}
+      </div>
+    </article>`;
+  }).join("");
+}
+async function loadEvents() {
+  $("eventList").innerHTML = '<div class="empty">Loading events...</div>';
+  const {data,error} = await supabaseClient.from("church_events").select("*").eq("church_id",currentChurch.id).order("starts_at",{ascending:true});
+  if (error) {
+    $("eventList").innerHTML = '<div class="empty">Events could not be loaded. Please refresh and try again.</div>';
+    showMessage($("pageMessage"), "We could not retrieve the event list. Your access is still active; please try Refresh.", "error");
+    return;
+  }
+  events = data || [];
+  renderEvents();
+}
+async function verifyAccess(user) {
+  currentUser = user;
+  const {data:memberships,error:membershipError} = await supabaseClient
+    .from("church_memberships").select("church_id,role,status").eq("user_id",user.id).eq("status","active");
+  if (membershipError || !memberships?.length) {
+    showLogin("No active church membership could be verified for this account.", "error"); return;
+  }
+  if (memberships.length !== 1) {
+    showLogin("This account has more than one active church membership. Please contact the platform administrator before managing events.", "error"); return;
+  }
+  currentMembership = memberships[0];
+  if (!allowedRoles.includes(currentMembership.role)) {
+    showLogin("Your account does not have an authorised role for managing church events.", "error"); return;
+  }
+  const {data:church,error:churchError} = await supabaseClient.from("churches")
+    .select("id,name,church_logo_url,theme_key,timezone").eq("id",currentMembership.church_id).maybeSingle();
+  if (churchError || !church) {
+    showLogin("Your church record could not be verified. Please contact the platform administrator.", "error"); return;
+  }
+  currentChurch = church;
+  $("churchName").textContent = church.name;
+  $("churchInitial").textContent = church.name.charAt(0).toUpperCase();
+  $("accountRole").textContent = currentMembership.role.replaceAll("_"," ");
+  if (church.church_logo_url) {
+    const img = document.createElement("img");
+    img.src = church.church_logo_url; img.alt = church.name + " logo";
+    $("churchLogo").replaceChildren(img);
+    img.onerror = () => $("churchLogo").textContent = church.name.charAt(0).toUpperCase();
+  }
+  applyTheme(church.theme_key || "forest_green");
+  showWorkspace();
+  await loadEvents();
+}
+async function checkSession() {
+  const {data,error} = await supabaseClient.auth.getSession();
+  if (error) { showLogin("Unable to verify your sign-in session. Please try again.", "error"); return; }
+  if (data.session?.user) await verifyAccess(data.session.user);
+  else showLogin();
+}
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const button = $("loginButton"); button.disabled = true; button.textContent = "Signing in...";
+  const {data,error} = await supabaseClient.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+  button.disabled = false; button.textContent = "Sign In";
+  if (error) { showMessage($("loginMessage"),"Sign-in unsuccessful. Please check your details and try again.","error"); return; }
+  if (data.user) await verifyAccess(data.user);
+});
+$("signOutButton").addEventListener("click", async () => {
+  const {error} = await supabaseClient.auth.signOut();
+  if (error) { showMessage($("pageMessage"),"We could not sign you out. Please try again.","error"); return; }
+  currentUser = currentChurch = currentMembership = null;
+  showLogin("You have signed out.", "success");
+});
+$("eventForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  clearMessage($("pageMessage"));
+  const start = $("startsAt").value;
+  const end = $("endsAt").value;
+  if (!start) { showMessage($("pageMessage"),"Please enter the event start date and time.","error"); return; }
+  if (end && new Date(end) < new Date(start)) { showMessage($("pageMessage"),"The end date and time cannot be earlier than the start.","error"); return; }
+  const url = $("registrationUrl").value.trim();
+  if (url && !/^https?:\/\//i.test(url)) { showMessage($("pageMessage"),"Please enter a complete registration URL beginning with http:// or https://.","error"); return; }
+  const payload = {
+    church_id: currentChurch.id,
+    title: $("eventTitle").value.trim(),
+    event_type: $("eventType").value,
+    description: $("eventDescription").value.trim() || null,
+    starts_at: toIso(start),
+    ends_at: end ? toIso(end) : null,
+    venue: $("venue").value.trim() || null,
+    address: $("address").value.trim() || null,
+    contact_name: $("contactName").value.trim() || null,
+    contact_phone: $("contactPhone").value.trim() || null,
+    registration_url: url || null,
+    status: $("eventStatus").value,
+    updated_by: currentUser.id
+  };
+  const button = $("saveButton"); button.disabled = true; button.textContent = editingEventId ? "Updating..." : "Saving...";
+  let result;
+  if (editingEventId) {
+    result = await supabaseClient.from("church_events").update(payload).eq("id",editingEventId).eq("church_id",currentChurch.id);
+  } else {
+    payload.created_by = currentUser.id;
+    result = await supabaseClient.from("church_events").insert(payload);
+  }
+  button.disabled = false; button.textContent = editingEventId ? "Update Event" : "Save Event";
+  if (result.error) {
+    showMessage($("pageMessage"),"The event could not be saved. Check your permissions and the information entered, then try again.","error");
+    return;
+  }
+  resetForm();
+  showMessage($("pageMessage"),"Event saved successfully.","success");
+  await loadEvents();
+});
+$("resetButton").addEventListener("click",resetForm);
+$("refreshButton").addEventListener("click",loadEvents);
+$("searchEvents").addEventListener("input",renderEvents);
+$("filterStatus").addEventListener("change",renderEvents);
+$("eventList").addEventListener("click", async event => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+  const record = events.find(item => item.id === button.dataset.id);
+  if (!record) return;
+  const action = button.dataset.action;
+  if (action === "edit") { populateForm(record); return; }
+  if (action === "delete") {
+    if (!canDelete()) return;
+    if (!confirm(`Permanently delete "${record.title}"? This cannot be undone.`)) return;
+    const {error} = await supabaseClient.from("church_events").delete().eq("id",record.id).eq("church_id",currentChurch.id);
+    if (error) { showMessage($("pageMessage"),"The event could not be deleted. Please check your permissions and try again.","error"); return; }
+    if (editingEventId === record.id) resetForm();
+    showMessage($("pageMessage"),"Event deleted.","success");
+    await loadEvents(); return;
+  }
+  const nextStatus = ({publish:"published",cancel:"cancelled",archive:"archived",draft:"draft"})[action];
+  if (!nextStatus) return;
+  const confirmation = nextStatus === "published"
+    ? `Publish "${record.title}"? It will become visible on the public events page.`
+    : nextStatus === "cancelled"
+      ? `Mark "${record.title}" as cancelled? This status will be visible publicly.`
+      : nextStatus === "archived"
+        ? `Archive "${record.title}"? It will no longer appear publicly.`
+        : `Restore "${record.title}" to draft status?`;
+  if (!confirm(confirmation)) return;
+  const {error} = await supabaseClient.from("church_events").update({status:nextStatus,updated_by:currentUser.id}).eq("id",record.id).eq("church_id",currentChurch.id);
+  if (error) { showMessage($("pageMessage"),"The event status could not be changed. Please try again.","error"); return; }
+  showMessage($("pageMessage"),`Event status changed to ${nextStatus}.`,"success");
+  await loadEvents();
+});
+checkSession();
+</script>
+</body>
+</html>
