@@ -1,0 +1,541 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Church Branding | Revolving Bible</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --theme: #173f32;
+  --theme-dark: #0b2b1e;
+  --gold: #d7b45a;
+  --page: #f3f6f3;
+  --text: #26352c;
+  --muted: #718078;
+  --border: #dfe6e0;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+button, input { font: inherit; }
+.topbar {
+  background: var(--theme-dark);
+  color: white;
+  padding: 15px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.brand { display:flex; align-items:center; gap:13px; }
+.brand img { width:55px; height:55px; object-fit:contain; }
+.brand strong { font-size:19px; }
+.brand small { display:block; color:#dfd09f; margin-top:5px; }
+.topbar a { color:white; text-decoration:none; }
+.container { max-width:1100px; margin:auto; padding:32px 20px 55px; }
+.intro { margin-bottom:25px; }
+.intro h1 { margin:0 0 8px; font-size:27px; }
+.intro p { color:var(--muted); line-height:1.5; }
+.panel {
+  background:white;
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:24px;
+  margin-bottom:22px;
+}
+.panel h2 { margin:0 0 8px; font-size:19px; }
+.description { color:var(--muted); font-size:14px; line-height:1.5; }
+.identity {
+  display:flex;
+  align-items:center;
+  gap:17px;
+  flex-wrap:wrap;
+  padding:20px;
+  background:#f7f9f7;
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-top:18px;
+}
+.church-logo {
+  width:90px;
+  height:90px;
+  border-radius:12px;
+  object-fit:contain;
+  background:white;
+  border:1px solid var(--border);
+  padding:6px;
+}
+.identity h3 { margin:0 0 6px; font-size:19px; }
+.identity p { margin:0; color:var(--muted); font-size:13px; }
+.field { margin-top:18px; }
+.field label { display:block; font-weight:bold; font-size:14px; margin-bottom:9px; }
+input[type=file] {
+  display:block;
+  width:100%;
+  padding:13px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:white;
+}
+.hint { color:var(--muted); font-size:12px; margin-top:8px; }
+.themes {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:13px;
+  margin-top:18px;
+}
+.theme-option {
+  border:2px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:white;
+}
+.theme-option.selected { border-color:var(--theme); }
+.theme-option input { accent-color:var(--theme); }
+.swatch { width:45px; height:38px; border-radius:7px; flex-shrink:0; }
+.theme-option strong { font-size:14px; }
+.preview {
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  margin-top:18px;
+}
+.preview-header {
+  background:var(--theme-dark);
+  color:white;
+  padding:16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.preview-header img { width:48px; height:48px; object-fit:contain; }
+.preview-header strong { font-size:15px; }
+.preview-header small { display:block; color:#e3d39e; margin-top:4px; }
+.preview-body { padding:22px; background:white; }
+.preview-church {
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.preview-church img {
+  width:65px; height:65px; object-fit:contain;
+  border:1px solid var(--border); border-radius:9px;
+}
+.preview-church h3 { margin:0 0 5px; font-size:17px; }
+.preview-church p { margin:0; color:var(--muted); font-size:12px; }
+.preview-accent {
+  background:var(--theme);
+  color:white;
+  padding:13px;
+  border-radius:8px;
+  margin-top:18px;
+  font-size:13px;
+}
+.actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:22px; }
+button {
+  border:0;
+  border-radius:8px;
+  padding:13px 20px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.save { background:var(--theme); color:white; }
+.secondary { background:#edf1ed; color:var(--text); }
+button:disabled { opacity:.55; cursor:wait; }
+.message {
+  margin-top:15px;
+  padding:12px;
+  border-radius:8px;
+  font-size:13px;
+  line-height:1.5;
+  display:none;
+}
+.message.success { display:block; background:#edf6ee; color:#245d35; }
+.message.error { display:block; background:#fff0ee; color:#a22b20; }
+#workspace { display:none; }
+footer { text-align:center; padding:22px; color:var(--muted); font-size:12px; }
+@media(max-width:600px) {
+  .themes { grid-template-columns:1fr; }
+  .container { padding:22px 14px 40px; }
+  .panel { padding:18px; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/revolving-bible-logo.png" alt="Revolving Bible logo">
+    <div>
+      <strong>Revolving Bible</strong>
+      <small>Church Branding & Appearance</small>
+    </div>
+  </div>
+  <a href="church-dashboard.html">← Back to Dashboard</a>
+</header>
+
+<main class="container">
+
+<section id="loading">
+  <p>Verifying your administrator access...</p>
+</section>
+
+<section id="loginRequired" style="display:none">
+  <h2>Administrator sign-in required</h2>
+  <p>Please sign in through the Church Dashboard first.</p>
+  <a href="church-dashboard.html">Return to Church Dashboard</a>
+</section>
+
+<div id="workspace">
+
+  <div class="intro">
+    <h1>Church Branding & Appearance</h1>
+    <p>Manage your church's identity and approved colour theme across the Revolving Bible experience.</p>
+  </div>
+
+  <section class="panel">
+    <h2>Church identity</h2>
+    <p class="description">
+      Your church identity appears alongside the fixed Revolving Bible product branding.
+    </p>
+
+    <div class="identity">
+      <img id="churchLogo" class="church-logo" alt="Church logo"
+           src="assets/revolving-bible-logo.png">
+      <div>
+        <h3 id="churchName">Loading church...</h3>
+        <p>Your church's identity on Revolving Bible</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="logoFile">Upload or replace church logo</label>
+      <input id="logoFile" type="file"
+             accept="image/png,image/jpeg,image/webp">
+      <p class="hint">
+        PNG, JPEG or WebP only. Maximum 3 MB.
+        A transparent PNG is recommended for the best appearance.
+      </p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Approved colour themes</h2>
+    <p class="description">
+      Select the theme that represents your church. You can preview it before publishing.
+    </p>
+
+    <div class="themes">
+      <label class="theme-option selected">
+        <input type="radio" name="theme" value="forest_green" checked>
+        <span class="swatch" style="background:#173f32"></span>
+        <strong>Forest Green</strong>
+      </label>
+
+      <label class="theme-option">
+        <input type="radio" name="theme" value="royal_blue">
+        <span class="swatch" style="background:#173d70"></span>
+        <strong>Royal Blue</strong>
+      </label>
+
+      <label class="theme-option">
+        <input type="radio" name="theme" value="natural_green">
+        <span class="swatch" style="background:#326044"></span>
+        <strong>Natural Green</strong>
+      </label>
+
+      <label class="theme-option">
+        <input type="radio" name="theme" value="charcoal_gold">
+        <span class="swatch" style="background:#292929"></span>
+        <strong>Charcoal Gold</strong>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Appearance preview</h2>
+    <p class="description">
+      This preview demonstrates how the two identities work together.
+    </p>
+
+    <div class="preview">
+      <div class="preview-header">
+        <img src="assets/revolving-bible-logo.png" alt="Revolving Bible">
+        <div>
+          <strong>Revolving Bible</strong>
+          <small>Powered by Revolving Bible</small>
+        </div>
+      </div>
+
+      <div class="preview-body">
+        <div class="preview-church">
+          <img id="previewChurchLogo"
+               src="assets/revolving-bible-logo.png"
+               alt="Church logo preview">
+          <div>
+            <h3 id="previewChurchName">Your Church</h3>
+            <p>Welcome to our church</p>
+          </div>
+        </div>
+        <div class="preview-accent">
+          Scripture, worship and fellowship — together.
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="secondary" id="previewButton" type="button">
+        Preview Selection
+      </button>
+      <button class="save" id="saveButton" type="button">
+        Save & Publish Branding
+      </button>
+    </div>
+
+    <div id="message" class="message" role="status" aria-live="polite"></div>
+  </section>
+
+</div>
+</main>
+
+<footer>Revolving Bible · Keeping Scripture Present in Everyday Life</footer>
+
+<script>
+const SUPABASE_URL =
+  "https://tthgeaiokpltmfxxmibb.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+const themes = {
+  forest_green: { main:"#173f32", dark:"#0b2b1e" },
+  royal_blue: { main:"#173d70", dark:"#102b50" },
+  natural_green: { main:"#326044", dark:"#203e2d" },
+  charcoal_gold: { main:"#292929", dark:"#171717" }
+};
+
+let currentUser = null;
+let currentChurch = null;
+let currentLogoUrl = null;
+let selectedFile = null;
+
+const loading = document.getElementById("loading");
+const workspace = document.getElementById("workspace");
+const message = document.getElementById("message");
+const logoFile = document.getElementById("logoFile");
+const saveButton = document.getElementById("saveButton");
+
+function showMessage(text, type) {
+  message.textContent = text;
+  message.className = "message " + type;
+}
+
+function applyTheme(themeKey) {
+  const theme = themes[themeKey] || themes.forest_green;
+  document.documentElement.style.setProperty("--theme", theme.main);
+  document.documentElement.style.setProperty("--theme-dark", theme.dark);
+
+  document.querySelectorAll(".theme-option").forEach(option => {
+    const input = option.querySelector("input");
+    option.classList.toggle("selected", input.checked);
+  });
+}
+
+function selectedTheme() {
+  return document.querySelector('input[name="theme"]:checked').value;
+}
+
+function updatePreview() {
+  applyTheme(selectedTheme());
+}
+
+document.querySelectorAll('input[name="theme"]').forEach(input => {
+  input.addEventListener("change", updatePreview);
+});
+
+document.getElementById("previewButton").addEventListener("click", () => {
+  updatePreview();
+  showMessage("Preview updated. Your published church branding has not changed.", "success");
+});
+
+logoFile.addEventListener("change", () => {
+  const file = logoFile.files[0];
+  if (!file) return;
+
+  const allowed = ["image/png", "image/jpeg", "image/webp"];
+
+  if (!allowed.includes(file.type)) {
+    logoFile.value = "";
+    selectedFile = null;
+    showMessage("Please choose a PNG, JPEG or WebP image.", "error");
+    return;
+  }
+
+  if (file.size > 3 * 1024 * 1024) {
+    logoFile.value = "";
+    selectedFile = null;
+    showMessage("The logo must not exceed 3 MB.", "error");
+    return;
+  }
+
+  selectedFile = file;
+  const previewUrl = URL.createObjectURL(file);
+
+  document.getElementById("churchLogo").src = previewUrl;
+  document.getElementById("previewChurchLogo").src = previewUrl;
+  showMessage("Logo selected. Save & Publish Branding to publish it.", "success");
+});
+
+async function loadBranding() {
+  try {
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+      loading.style.display = "none";
+      document.getElementById("loginRequired").style.display = "block";
+      return;
+    }
+
+    const { data: userData, error: userError } =
+      await supabaseClient.auth.getUser();
+
+    if (userError || !userData.user) {
+      throw new Error("Your sign-in session could not be verified.");
+    }
+
+    currentUser = userData.user;
+
+    const { data: memberships, error: membershipError } =
+      await supabaseClient
+        .from("church_memberships")
+        .select("church_id, role, status")
+        .eq("user_id", currentUser.id)
+        .eq("status", "active");
+
+    if (membershipError) throw membershipError;
+
+    if (!memberships || memberships.length !== 1 ||
+        memberships[0].role !== "church_admin") {
+      throw new Error("An active church administrator membership is required.");
+    }
+
+    const { data: church, error: churchError } =
+      await supabaseClient
+        .from("churches")
+        .select("id,name,church_logo_url,theme_key")
+        .eq("id", memberships[0].church_id)
+        .single();
+
+    if (churchError || !church) throw churchError || new Error("Church not found.");
+
+    currentChurch = church;
+    currentLogoUrl = church.church_logo_url;
+
+    document.getElementById("churchName").textContent = church.name;
+    document.getElementById("previewChurchName").textContent = church.name;
+
+    if (currentLogoUrl) {
+      document.getElementById("churchLogo").src = currentLogoUrl;
+      document.getElementById("previewChurchLogo").src = currentLogoUrl;
+    }
+
+    const theme = themes[church.theme_key] ? church.theme_key : "forest_green";
+    document.querySelector(`input[name="theme"][value="${theme}"]`).checked = true;
+    applyTheme(theme);
+
+    loading.style.display = "none";
+    workspace.style.display = "block";
+
+  } catch (error) {
+    loading.textContent = error.message ||
+      "Unable to load church branding settings. Please try again.";
+  }
+}
+
+saveButton.addEventListener("click", async () => {
+  if (!currentChurch || !currentUser) return;
+
+  saveButton.disabled = true;
+  saveButton.textContent = "Publishing...";
+
+  try {
+    let logoUrl = currentLogoUrl;
+
+    if (selectedFile) {
+      const extension = selectedFile.type === "image/jpeg" ? "jpg" :
+        selectedFile.type === "image/png" ? "png" : "webp";
+
+      const path = `${currentChurch.id}/church-logo.${extension}`;
+
+      const { error: uploadError } =
+        await supabaseClient.storage
+          .from("church-logos")
+          .upload(path, selectedFile, {
+            upsert: true,
+            contentType: selectedFile.type,
+            cacheControl: "3600"
+          });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicData } =
+        supabaseClient.storage
+          .from("church-logos")
+          .getPublicUrl(path);
+
+      logoUrl = publicData.publicUrl;
+    }
+
+    const { error: updateError } =
+      await supabaseClient
+        .from("churches")
+        .update({
+          church_logo_url: logoUrl,
+          theme_key: selectedTheme(),
+          branding_updated_at: new Date().toISOString(),
+          branding_updated_by: currentUser.id
+        })
+        .eq("id", currentChurch.id);
+
+    if (updateError) throw updateError;
+
+    currentLogoUrl = logoUrl;
+    currentChurch.church_logo_url = logoUrl;
+    currentChurch.theme_key = selectedTheme();
+    selectedFile = null;
+    logoFile.value = "";
+
+    showMessage("Your church branding has been saved and published successfully.", "success");
+
+  } catch (error) {
+    showMessage(error.message || "Unable to save branding. Please try again.", "error");
+  } finally {
+    saveButton.disabled = false;
+    saveButton.textContent = "Save & Publish Branding";
+  }
+});
+
+loadBranding();
+</script>
+
+</body>
+</html>
