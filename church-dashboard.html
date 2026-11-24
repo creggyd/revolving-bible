@@ -332,13 +332,79 @@ button, input { font: inherit; }
 
 .card-link:hover { text-decoration: underline; }
 
-.coming {
-  color: #8a8062;
-  font-size: 11px;
-  font-weight: bold;
-  margin-top: auto;
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 24px;
 }
 
+.overview-card {
+  background: #ffffff;
+  border: 1px solid #e5e9e6;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.overview-heading {
+  margin-top: 30px;
+}
+
+.overview-heading h2 {
+  color: #173f32;
+  margin-bottom: 6px;
+}
+
+.overview-heading p {
+  color: #718078;
+}
+
+.overview-icon {
+  font-size: 28px;
+  margin-bottom: 14px;
+}
+
+.overview-card h3 {
+  color: #173f32;
+  margin-bottom: 10px;
+}
+
+.overview-detail {
+  color: #68766e;
+  line-height: 1.6;
+  min-height: 48px;
+}
+
+.overview-status,
+.overview-coming {
+  display: block;
+  font-size: 12px;
+  margin: 14px 0;
+  color: #47745d;
+}
+
+.overview-coming {
+  color: #8a7650;
+}
+
+.overview-link {
+  display: inline-block;
+  color: #98752b;
+  font-weight: 600;
+  text-decoration: none;
+  margin-top: 8px;
+}
+
+.overview-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 560px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
 .bottom-note {
   margin-top: 27px;
   background: #edf2ed;
@@ -665,26 +731,138 @@ body.theme-charcoal-gold {
         <div class="role" id="accountRole">Church Admin</div>
       </section>
 
-      <section class="section-heading">
-        <div>
-          <h2>Church Overview</h2>
+      
+<section class="section-heading">
+  <div>
+    <h2>Church Overview</h2>
+    <p>A snapshot of your church's digital ministry.</p>
+  </div>
+  <span class="section-tag">ADMINISTRATION OVERVIEW</span>
+</section>
+
+<div class="overview-grid">
+
+  <article class="overview-card">
+    <div class="overview-heading">
+      <span class="overview-icon">📖</span>
+      <span class="overview-status">Scripture</span>
+    </div>
+    <h3>Revolving Scripture</h3>
+    <p>Your church's rotating Bible passage display.</p>
+    <div class="overview-detail">
+      Scripture display information will appear here.
+    </div>
+    <a href="church-display.html" class="overview-link">
+      Open Church Display →
+    </a>
+  </article>
+
+  <article class="overview-card">
+    <div class="overview-heading">
+      <span class="overview-icon">📅</span>
+      <span class="overview-status">Services</span>
+    </div>
+    <h3>Upcoming Services & Events</h3>
+    <p>Keep track of scheduled church services and activities.</p>
+    <div class="overview-detail">
+      Upcoming service information will appear here.
+    </div>
+    <a href="programme.html" class="overview-link">
+      View Service Programme →
+    </a>
+  </article>
+
+  <article class="overview-card">
+    <div class="overview-heading">
+      <span class="overview-icon">👥</span>
+      <span class="overview-status">Membership</span>
+    </div>
+    <h3>Church Membership</h3>
+    <p>Manage church membership and assigned access permissions.</p>
+    <div class="overview-detail">
+      Membership statistics will appear here.
+    </div>
+    <span class="overview-coming">Management feature planned</span>
+  </article>
+
+  <article class="overview-card">
+    <div class="overview-heading">
+      <span class="overview-icon">🔔</span>
+      <span class="overview-status">Activity</span>
+    </div>
+    <h3>Recent Church Activity</h3>
+    <p>Keep track of important updates to your church workspace.</p>
+    <div class="overview-detail">
+      Recent administrative activity will appear here.
+    </div>
+    <span class="overview-coming">Activity tracking planned</span>
+  </article>
+
+</div>
+
+<div class="bottom-note">
+  <strong>Revolving Bible:</strong>
+  Your central digital workspace for Scripture, church services,
+  member engagement and church administration.
+</div>
+
           <p>Manage your church's Scripture experience and digital services.</p>
         </div>
         <span class="section-tag">ADMINISTRATION WORKSPACE</span>
       </section>
 
-      <div class="dashboard-grid">
+     <section class="overview-section">
+  <div class="overview-heading">
+    <h2>Church Overview</h2>
+    <p>A quick look at your church's digital activity.</p>
+  </div>
 
-        <article class="dashboard-card active">
-          <div class="card-icon">📖</div>
-          <div class="card-content">
-            <h3>Scripture Display</h3>
-            <p>Access the revolving Scripture display and preacher-controlled reading tools.</p>
-            <a class="card-link" href="preacher-control.html">
-              Open Scripture Controls →
-            </a>
-          </div>
-        </article>
+  <div class="overview-grid">
+
+    <article class="overview-card">
+      <div class="overview-icon">📖</div>
+      <h3>Revolving Scripture</h3>
+      <p class="overview-detail">
+        Your church's Scripture display and current passage.
+      </p>
+      <span class="overview-status">Display available</span>
+      <a class="overview-link" href="church-display.html">
+        View Scripture Display →
+      </a>
+    </article>
+
+    <article class="overview-card">
+      <div class="overview-icon">📅</div>
+      <h3>Upcoming Services & Events</h3>
+      <p class="overview-detail">
+        Upcoming church services and scheduled activities.
+      </p>
+      <span class="overview-status">Programme information will appear here</span>
+      <a class="overview-link" href="programme.html">
+        View Service Programme →
+      </a>
+    </article>
+
+    <article class="overview-card">
+      <div class="overview-icon">👥</div>
+      <h3>Church Membership</h3>
+      <p class="overview-detail">
+        An overview of your church's registered members.
+      </p>
+      <span class="overview-coming">Membership management planned</span>
+    </article>
+
+    <article class="overview-card">
+      <div class="overview-icon">📋</div>
+      <h3>Recent Church Activity</h3>
+      <p class="overview-detail">
+        A record of recent administrative changes and activity.
+      </p>
+      <span class="overview-coming">Activity tracking planned</span>
+    </article>
+
+  </div>
+</section>
 
         <article class="dashboard-card active">
           <div class="card-icon">🖥️</div>
