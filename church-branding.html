@@ -153,6 +153,7 @@ button {
 }
 .save { background:var(--theme); color:white; }
 .secondary { background:#edf1ed; color:var(--text); }
+.danger { background:#fff0ee; color:#a22b20; }
 button:disabled { opacity:.55; cursor:wait; }
 .message {
   margin-top:15px;
@@ -164,12 +165,85 @@ button:disabled { opacity:.55; cursor:wait; }
 }
 .message.success { display:block; background:#edf6ee; color:#245d35; }
 .message.error { display:block; background:#fff0ee; color:#a22b20; }
+
+.history-list {
+  display:flex;
+  flex-direction:column;
+  gap:13px;
+  margin-top:20px;
+}
+.history-item {
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+}
+.history-details {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0;
+}
+.history-logo {
+  width:58px;
+  height:58px;
+  object-fit:contain;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:4px;
+  background:white;
+  flex-shrink:0;
+}
+.history-details h3 {
+  margin:0 0 6px;
+  font-size:15px;
+}
+.history-details p {
+  margin:4px 0;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+.history-actions {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.history-actions button {
+  padding:10px 14px;
+  font-size:12px;
+}
+.history-empty {
+  padding:20px;
+  border:1px dashed var(--border);
+  border-radius:9px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+.history-tag {
+  display:inline-block;
+  font-size:10px;
+  font-weight:bold;
+  padding:4px 7px;
+  border-radius:5px;
+  background:#edf1ed;
+  color:#405348;
+  margin-top:3px;
+}
 #workspace { display:none; }
 footer { text-align:center; padding:22px; color:var(--muted); font-size:12px; }
+
 @media(max-width:600px) {
   .themes { grid-template-columns:1fr; }
   .container { padding:22px 14px 40px; }
   .panel { padding:18px; }
+  .history-item { align-items:flex-start; }
 }
 </style>
 </head>
@@ -308,6 +382,36 @@ footer { text-align:center; padding:22px; color:var(--muted); font-size:12px; }
     <div id="message" class="message" role="status" aria-live="polite"></div>
   </section>
 
+  <!-- BRANDING HISTORY -->
+  <section class="panel">
+    <h2>Branding History & Restore</h2>
+    <p class="description">
+      Review previously published church appearances. You can restore an earlier
+      theme and logo whenever necessary. Restoring a version will also be recorded
+      in your branding history.
+    </p>
+
+    <div class="actions">
+      <button class="secondary" id="refreshHistoryButton" type="button">
+        Refresh History
+      </button>
+      <button class="danger" id="restoreDefaultButton" type="button">
+        Restore Revolving Bible Default
+      </button>
+    </div>
+
+    <div class="history-list" id="historyList">
+      <div class="history-empty">Loading branding history...</div>
+    </div>
+
+    <div id="historyMessage" class="message" role="status" aria-live="polite"></div>
+
+    <p class="hint">
+      Revolving Bible Default means Forest Green with no separate church logo.
+      The original Revolving Bible product logo remains in place.
+    </p>
+  </section>
+
 </div>
 </main>
 
@@ -326,30 +430,55 @@ const supabaseClient = window.supabase.createClient(
 );
 
 const themes = {
-  forest_green: { main:"#173f32", dark:"#0b2b1e" },
-  royal_blue: { main:"#173d70", dark:"#102b50" },
-  natural_green: { main:"#326044", dark:"#203e2d" },
-  charcoal_gold: { main:"#292929", dark:"#171717" }
+  forest_green: {
+    main:"#173f32",
+    dark:"#0b2b1e",
+    label:"Forest Green"
+  },
+  royal_blue: {
+    main:"#173d70",
+    dark:"#102b50",
+    label:"Royal Blue"
+  },
+  natural_green: {
+    main:"#326044",
+    dark:"#203e2d",
+    label:"Natural Green"
+  },
+  charcoal_gold: {
+    main:"#292929",
+    dark:"#171717",
+    label:"Charcoal Gold"
+  }
 };
 
 let currentUser = null;
 let currentChurch = null;
 let currentLogoUrl = null;
 let selectedFile = null;
+let previewObjectUrl = null;
 
 const loading = document.getElementById("loading");
 const workspace = document.getElementById("workspace");
 const message = document.getElementById("message");
+const historyMessage = document.getElementById("historyMessage");
 const logoFile = document.getElementById("logoFile");
 const saveButton = document.getElementById("saveButton");
+const historyList = document.getElementById("historyList");
 
 function showMessage(text, type) {
   message.textContent = text;
   message.className = "message " + type;
 }
 
+function showHistoryMessage(text, type) {
+  historyMessage.textContent = text;
+  historyMessage.className = "message " + type;
+}
+
 function applyTheme(themeKey) {
   const theme = themes[themeKey] || themes.forest_green;
+
   document.documentElement.style.setProperty("--theme", theme.main);
   document.documentElement.style.setProperty("--theme-dark", theme.dark);
 
@@ -367,17 +496,45 @@ function updatePreview() {
   applyTheme(selectedTheme());
 }
 
+function setChurchLogo(url) {
+  const logo = url || "assets/revolving-bible-logo.png";
+
+  document.getElementById("churchLogo").src = logo;
+  document.getElementById("previewChurchLogo").src = logo;
+}
+
+function formatDate(value) {
+  if (!value) return "Date unavailable";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "Date unavailable";
+
+  return date.toLocaleString("en-JM", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+}
+
+function themeLabel(themeKey) {
+  return themes[themeKey]?.label || "Unknown theme";
+}
+
 document.querySelectorAll('input[name="theme"]').forEach(input => {
   input.addEventListener("change", updatePreview);
 });
 
 document.getElementById("previewButton").addEventListener("click", () => {
   updatePreview();
-  showMessage("Preview updated. Your published church branding has not changed.", "success");
+  showMessage(
+    "Preview updated. Your published church branding has not changed.",
+    "success"
+  );
 });
 
 logoFile.addEventListener("change", () => {
   const file = logoFile.files[0];
+
   if (!file) return;
 
   const allowed = ["image/png", "image/jpeg", "image/webp"];
@@ -397,12 +554,238 @@ logoFile.addEventListener("change", () => {
   }
 
   selectedFile = file;
-  const previewUrl = URL.createObjectURL(file);
 
-  document.getElementById("churchLogo").src = previewUrl;
-  document.getElementById("previewChurchLogo").src = previewUrl;
-  showMessage("Logo selected. Save & Publish Branding to publish it.", "success");
+  if (previewObjectUrl) {
+    URL.revokeObjectURL(previewObjectUrl);
+  }
+
+  previewObjectUrl = URL.createObjectURL(file);
+
+  setChurchLogo(previewObjectUrl);
+
+  showMessage(
+    "Logo selected. Save & Publish Branding to publish it.",
+    "success"
+  );
 });
+
+async function loadHistory() {
+  if (!currentChurch) return;
+
+  historyList.replaceChildren();
+
+  const loadingMessage = document.createElement("div");
+  loadingMessage.className = "history-empty";
+  loadingMessage.textContent = "Loading branding history...";
+  historyList.appendChild(loadingMessage);
+
+  const { data, error } = await supabaseClient
+    .from("church_branding_history")
+    .select("id,church_logo_url,theme_key,changed_by_email,change_type,created_at")
+    .eq("church_id", currentChurch.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    historyList.replaceChildren();
+
+    const errorMessage = document.createElement("div");
+    errorMessage.className = "history-empty";
+    errorMessage.textContent =
+      "Unable to load branding history: " + error.message;
+
+    historyList.appendChild(errorMessage);
+    return;
+  }
+
+  historyList.replaceChildren();
+
+  if (!data || data.length === 0) {
+    const emptyMessage = document.createElement("div");
+    emptyMessage.className = "history-empty";
+    emptyMessage.textContent =
+      "No branding history is available yet. Your next successful publication will appear here.";
+
+    historyList.appendChild(emptyMessage);
+    return;
+  }
+
+  data.forEach(version => {
+    const item = document.createElement("div");
+    item.className = "history-item";
+
+    const details = document.createElement("div");
+    details.className = "history-details";
+
+    const image = document.createElement("img");
+    image.className = "history-logo";
+    image.alt = "Historical church logo";
+    image.src = version.church_logo_url ||
+      "assets/revolving-bible-logo.png";
+
+    const information = document.createElement("div");
+
+    const heading = document.createElement("h3");
+    heading.textContent = themeLabel(version.theme_key);
+
+    const date = document.createElement("p");
+    date.textContent = "Date: " + formatDate(version.created_at);
+
+    const administrator = document.createElement("p");
+    administrator.textContent = version.changed_by_email
+      ? "Administrator: " + version.changed_by_email
+      : "Administrator account";
+
+    const tag = document.createElement("span");
+    tag.className = "history-tag";
+
+    if (version.change_type === "initial_snapshot") {
+      tag.textContent = "Starting snapshot";
+    } else if (version.change_type === "restored") {
+      tag.textContent = "Restored version";
+    } else {
+      tag.textContent = "Published version";
+    }
+
+    information.appendChild(heading);
+    information.appendChild(date);
+    information.appendChild(administrator);
+    information.appendChild(tag);
+
+    details.appendChild(image);
+    details.appendChild(information);
+
+    const actions = document.createElement("div");
+    actions.className = "history-actions";
+
+    const restoreButton = document.createElement("button");
+    restoreButton.type = "button";
+    restoreButton.className = "secondary";
+    restoreButton.textContent = "Restore this version";
+
+    restoreButton.addEventListener("click", () => {
+      restoreVersion(version);
+    });
+
+    actions.appendChild(restoreButton);
+
+    item.appendChild(details);
+    item.appendChild(actions);
+
+    historyList.appendChild(item);
+  });
+}
+
+async function restoreVersion(version) {
+  const themeName = themeLabel(version.theme_key);
+
+  const confirmed = confirm(
+    "Restore this branding version?\n\n" +
+    "Theme: " + themeName + "\n" +
+    "Published: " + formatDate(version.created_at) + "\n\n" +
+    "Your current appearance will be replaced. " +
+    "The restored appearance will also be recorded in the history."
+  );
+
+  if (!confirmed) return;
+
+  await performRestore(version.id);
+}
+
+async function performRestore(historyId) {
+  const restoreButtons = document.querySelectorAll(
+    "#historyList button, #restoreDefaultButton"
+  );
+
+  restoreButtons.forEach(button => button.disabled = true);
+
+  try {
+    showHistoryMessage("Restoring branding...", "success");
+
+    const { error } = await supabaseClient.rpc(
+      "restore_church_branding_version",
+      {
+        p_church_id: currentChurch.id,
+        p_history_id: historyId
+      }
+    );
+
+    if (error) throw error;
+
+    selectedFile = null;
+    logoFile.value = "";
+
+    if (previewObjectUrl) {
+      URL.revokeObjectURL(previewObjectUrl);
+      previewObjectUrl = null;
+    }
+
+    showHistoryMessage(
+      "Branding restored successfully. Reloading the current appearance and history.",
+      "success"
+    );
+
+    await reloadCurrentBranding();
+    await loadHistory();
+
+  } catch (error) {
+    showHistoryMessage(
+      error.message || "Unable to restore branding. Please try again.",
+      "error"
+    );
+  } finally {
+    restoreButtons.forEach(button => button.disabled = false);
+  }
+}
+
+document.getElementById("restoreDefaultButton")
+  .addEventListener("click", async () => {
+
+    const confirmed = confirm(
+      "Restore Revolving Bible Default Branding?\n\n" +
+      "This will set the church theme to Forest Green and remove " +
+      "the separate church logo from the church branding settings.\n\n" +
+      "The original Revolving Bible product logo will remain in place.\n\n" +
+      "Your current appearance will be recorded in the history."
+    );
+
+    if (!confirmed) return;
+
+    await performRestore(null);
+  });
+
+document.getElementById("refreshHistoryButton")
+  .addEventListener("click", async () => {
+    await loadHistory();
+    showHistoryMessage("Branding history refreshed.", "success");
+  });
+
+async function reloadCurrentBranding() {
+  const { data: church, error } = await supabaseClient
+    .from("churches")
+    .select("id,name,church_logo_url,theme_key")
+    .eq("id", currentChurch.id)
+    .single();
+
+  if (error) throw error;
+
+  currentChurch = church;
+  currentLogoUrl = church.church_logo_url;
+
+  document.getElementById("churchName").textContent = church.name;
+  document.getElementById("previewChurchName").textContent = church.name;
+
+  setChurchLogo(currentLogoUrl);
+
+  const theme = themes[church.theme_key]
+    ? church.theme_key
+    : "forest_green";
+
+  document.querySelector(
+    `input[name="theme"][value="${theme}"]`
+  ).checked = true;
+
+  applyTheme(theme);
+}
 
 async function loadBranding() {
   try {
@@ -435,7 +818,9 @@ async function loadBranding() {
 
     if (!memberships || memberships.length !== 1 ||
         memberships[0].role !== "church_admin") {
-      throw new Error("An active church administrator membership is required.");
+      throw new Error(
+        "An active church administrator membership is required."
+      );
     }
 
     const { data: church, error: churchError } =
@@ -445,25 +830,18 @@ async function loadBranding() {
         .eq("id", memberships[0].church_id)
         .single();
 
-    if (churchError || !church) throw churchError || new Error("Church not found.");
-
-    currentChurch = church;
-    currentLogoUrl = church.church_logo_url;
-
-    document.getElementById("churchName").textContent = church.name;
-    document.getElementById("previewChurchName").textContent = church.name;
-
-    if (currentLogoUrl) {
-      document.getElementById("churchLogo").src = currentLogoUrl;
-      document.getElementById("previewChurchLogo").src = currentLogoUrl;
+    if (churchError || !church) {
+      throw churchError || new Error("Church not found.");
     }
 
-    const theme = themes[church.theme_key] ? church.theme_key : "forest_green";
-    document.querySelector(`input[name="theme"][value="${theme}"]`).checked = true;
-    applyTheme(theme);
+    currentChurch = church;
+
+    await reloadCurrentBranding();
 
     loading.style.display = "none";
     workspace.style.display = "block";
+
+    await loadHistory();
 
   } catch (error) {
     loading.textContent = error.message ||
@@ -481,16 +859,24 @@ saveButton.addEventListener("click", async () => {
     let logoUrl = currentLogoUrl;
 
     if (selectedFile) {
-      const extension = selectedFile.type === "image/jpeg" ? "jpg" :
-        selectedFile.type === "image/png" ? "png" : "webp";
+      const extension = selectedFile.type === "image/jpeg"
+        ? "jpg"
+        : selectedFile.type === "image/png"
+          ? "png"
+          : "webp";
 
-      const path = `${currentChurch.id}/church-logo.${extension}`;
+      // Each upload gets a unique filename.
+      // This preserves all previously published logo files.
+      const uniqueName = crypto.randomUUID();
+
+      const path =
+        `${currentChurch.id}/church-logo-${uniqueName}.${extension}`;
 
       const { error: uploadError } =
         await supabaseClient.storage
           .from("church-logos")
           .upload(path, selectedFile, {
-            upsert: true,
+            upsert: false,
             contentType: selectedFile.type,
             cacheControl: "3600"
           });
@@ -505,12 +891,14 @@ saveButton.addEventListener("click", async () => {
       logoUrl = publicData.publicUrl;
     }
 
+    const newTheme = selectedTheme();
+
     const { error: updateError } =
       await supabaseClient
         .from("churches")
         .update({
           church_logo_url: logoUrl,
-          theme_key: selectedTheme(),
+          theme_key: newTheme,
           branding_updated_at: new Date().toISOString(),
           branding_updated_by: currentUser.id
         })
@@ -520,14 +908,31 @@ saveButton.addEventListener("click", async () => {
 
     currentLogoUrl = logoUrl;
     currentChurch.church_logo_url = logoUrl;
-    currentChurch.theme_key = selectedTheme();
+    currentChurch.theme_key = newTheme;
+
     selectedFile = null;
     logoFile.value = "";
 
-    showMessage("Your church branding has been saved and published successfully.", "success");
+    if (previewObjectUrl) {
+      URL.revokeObjectURL(previewObjectUrl);
+      previewObjectUrl = null;
+    }
+
+    setChurchLogo(currentLogoUrl);
+
+    showMessage(
+      "Your church branding has been saved and published successfully. " +
+      "The previous logo and theme versions are preserved in your history.",
+      "success"
+    );
+
+    await loadHistory();
 
   } catch (error) {
-    showMessage(error.message || "Unable to save branding. Please try again.", "error");
+    showMessage(
+      error.message || "Unable to save branding. Please try again.",
+      "error"
+    );
   } finally {
     saveButton.disabled = false;
     saveButton.textContent = "Save & Publish Branding";
