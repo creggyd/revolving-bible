@@ -115,7 +115,9 @@
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_FSBEnnrDXG1ysm5IDU71Gw_KeBEyp9t';
     const CHURCH_ID = 'cd90c8c5-3931-4995-948b-9004dc398846';
     const FALLBACK_CHURCH_NAME = 'Omara Road Seventhday Adventist Church';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    const supabaseClient = window.supabase?.createClient
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+      : null;
 
     const categoryLabels = {
       special_service: 'Special Service', prayer_meeting: 'Prayer Meeting', convention: 'Convention',
@@ -172,8 +174,22 @@
       element.hidden = false;
     }
     async function loadChurchBranding() {
-      const {data, error} = await supabase.rpc('get_public_church_branding', {p_church_id: CHURCH_ID})
-        .maybeSingle();
+      document.getElementById('churchName').textContent = FALLBACK_CHURCH_NAME;
+      if (!supabaseClient) {
+        console.error('Supabase client library did not load.');
+        return;
+      }
+      let result;
+      try {
+        result = await Promise.race([
+          supabaseClient.rpc('get_public_church_branding', {p_church_id: CHURCH_ID}).maybeSingle(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Branding request timed out')), 12000))
+        ]);
+      } catch (requestError) {
+        console.warn('Church branding request failed; using the default appearance.', requestError);
+        return;
+      }
+      const {data, error} = result;
       if (error) {
         console.warn('Church branding could not be loaded; using the default appearance.', error.message);
         document.getElementById('churchName').textContent = FALLBACK_CHURCH_NAME;
@@ -216,11 +232,27 @@
       cancelledNotice.hidden = true;
       showState('upcomingState', 'Loading events…', 'Please wait while we retrieve the latest church notices.');
 
-      const {data, error} = await supabase.from('church_events')
+      if (!supabaseClient) {
+        showState('upcomingState', 'Events are temporarily unavailable', 'The connection service did not load. Please refresh the page and try again.', true);
+        return;
+      }
+
+      let result;
+      try {
+        result = await Promise.race([
+          supabaseClient.from('church_events')
         .select('id, title, event_type, description, starts_at, ends_at, venue, address, contact_name, contact_phone, registration_url, status')
         .eq('church_id', CHURCH_ID)
         .in('status', ['published','cancelled'])
-        .order('starts_at', {ascending:true});
+        .order('starts_at', {ascending:true}),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Events request timed out')), 15000))
+        ]);
+      } catch (requestError) {
+        console.error('Unable to load church events:', requestError);
+        showState('upcomingState', 'Events are temporarily unavailable', 'The request timed out or the connection was interrupted. Please try again.', true);
+        return;
+      }
+      const {data, error} = result;
 
       if (error) {
         console.error('Unable to load church events:', error);
@@ -260,10 +292,18 @@
       }
     }
     async function initPage() {
-      await loadChurchBranding();
+      try {
+        await loadChurchBranding();
+      } catch (initError) {
+        console.error('Page branding initialisation failed:', initError);
+        document.getElementById('churchName').textContent = FALLBACK_CHURCH_NAME;
+      }
       await loadEvents();
     }
-    initPage();
+    initPage().catch(initError => {
+      console.error('Events page initialisation failed:', initError);
+      showState('upcomingState', 'Events are temporarily unavailable', 'Something went wrong while starting this page. Please try again.', true);
+    });
   </script>
 </body>
 </html>
