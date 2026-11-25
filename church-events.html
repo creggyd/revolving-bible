@@ -59,7 +59,10 @@ body.theme-royal-blue{--green:#173b70;--green-dark:#10294d}body.theme-natural-gr
   <div id="pageMessage" class="message" role="status" aria-live="polite"></div>
   <div class="layout">
     <section class="panel">
-      <h3 id="formTitle">Create an Event</h3>
+      <div class="form-heading">
+  <h3 id="formTitle">Create an Event</h3>
+  <button class="btn secondary" id="newEventButton" type="button">+ New Event</button>
+</div>
       <p class="panel-intro">Add the event details below. Save as a draft if it is not ready for the congregation.</p>
       <form id="eventForm">
         <div class="field"><label for="eventTitle">Event Title *</label><input id="eventTitle" maxlength="150" minlength="3" required placeholder="e.g. Annual Youth Convention"></div>
@@ -379,6 +382,7 @@ $("eventForm").addEventListener("submit", async event => {
   await loadEvents();
 });
 $("resetButton").addEventListener("click",resetForm);
+$("newEventButton").addEventListener("click",resetForm);
 $("refreshButton").addEventListener("click",loadEvents);
 $("searchEvents").addEventListener("input",renderEvents);
 $("filterStatus").addEventListener("change",renderEvents);
