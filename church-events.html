@@ -137,11 +137,18 @@ function applyTheme(themeKey) {
 function showLogin(message="", type="info") {
   $("workspace").classList.add("hidden");
   $("loginSection").classList.remove("hidden");
-  if (message) showMessage($("loginMessage"), message, type);
-}
-function showWorkspace() {
+
+  clearMessage($("loginMessage"));
+  clearMessage($("pageMessage"));
+
+  if (message) {
+    showMessage($("loginMessage"), message, type);
+  
+  }
+}function showWorkspace() {
   $("loginSection").classList.add("hidden");
   $("workspace").classList.remove("hidden");
+
 }
 function escapeHtml(value="") {
   return String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
@@ -322,13 +329,28 @@ async function checkSession() {
   else showLogin();
 }
 let sessionCheckPromise = Promise.resolve();
-  $("loginForm").addEventListener("submit", async event => {
- await sessionCheckPromise;
+ $("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
-  const button = $("loginButton"); button.disabled = true; button.textContent = "Signing in...";
-  const {data,error} = await supabaseClient.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
-  button.disabled = false; button.textContent = "Sign In";
-  if (error) { showMessage($("loginMessage"),"Sign-in unsuccessful. Please check your details and try again.","error"); return; }
+
+  await sessionCheckPromise;
+
+  const button = $("loginButton");
+  button.disabled = true;
+  button.textContent = "Signing in...";
+
+  const {data,error} = await supabaseClient.auth.signInWithPassword({
+    email:$("email").value.trim(),
+    password:$("password").value
+  });
+
+  button.disabled = false;
+  button.textContent = "Sign In";
+
+  if (error) {
+    showMessage($("loginMessage"),"Sign-in unsuccessful. Please check your details and try again.","error");
+    return;
+  }
+
   if (data.user) await verifyAccess(data.user);
 });
 $("signOutButton").addEventListener("click", async () => {
