@@ -321,7 +321,9 @@ async function checkSession() {
   if (data.session?.user) await verifyAccess(data.session.user);
   else showLogin();
 }
-$("loginForm").addEventListener("submit", async event => {
+let sessionCheckPromise = Promise.resolve();
+  $("loginForm").addEventListener("submit", async event => {
+ await sessionCheckPromise;
   event.preventDefault();
   const button = $("loginButton"); button.disabled = true; button.textContent = "Signing in...";
   const {data,error} = await supabaseClient.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
@@ -418,7 +420,7 @@ $("eventList").addEventListener("click", async event => {
   await loadEvents();
 });
 populateTimeOptions();
-checkSession();
+sessionCheckPromise = checkSession();
 </script>
 </body>
 </html>
