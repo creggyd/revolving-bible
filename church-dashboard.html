@@ -842,8 +842,11 @@ function applyChurchTheme(themeKey) {
 
 function showDashboard(church, membership) {
   document.getElementById("churchName").textContent = church.name;
-  document.getElementById("churchInitial").textContent =
-    church.name.charAt(0).toUpperCase();
+  const churchInitial = document.getElementById("churchInitial");
+
+if (churchInitial) {
+  churchInitial.textContent = church.name.charAt(0).toUpperCase();
+}
   document.getElementById("accountRole").textContent =
     membership.role.replaceAll("_", " ");
 
