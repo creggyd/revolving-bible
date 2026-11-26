@@ -318,9 +318,15 @@ async function verifyAccess(user) {
     $("churchLogo").replaceChildren(img);
     img.onerror = () => $("churchLogo").textContent = church.name.charAt(0).toUpperCase();
   }
-  applyTheme(church.theme_key || "forest_green");
+    applyTheme(church.theme_key || "forest_green");
   showWorkspace();
-  await loadEvents();
+
+  loadEvents().catch(error => {
+    console.error("Event loading failed:", error);
+    $("eventList").innerHTML = '<div class="empty">Events could not be loaded. Please refresh and try again.</div>';
+    showMessage($("pageMessage"), "We could not retrieve the event list. Your access is still active; please try Refresh.", "error");
+  });
+}
 }
 async function checkSession() {
   const {data,error} = await supabaseClient.auth.getSession();
