@@ -781,6 +781,7 @@ body.theme-charcoal-gold {
         </article>
 
       </section>
+
 <section class="hidden" id="userAccess">
   <div class="section-heading">
     <div>
@@ -791,13 +792,17 @@ body.theme-charcoal-gold {
   </div>
 
   <div class="overview-card">
-    <h3>Member Permissions</h3>
+    <h3>Church Members</h3>
     <p>
-      Select a church member to review, grant or revoke access to specific
-      dashboard functions.
+      Review church members, their assigned roles, membership status
+      and individual access permissions.
     </p>
-    <div class="overview-detail">
-      Member access controls will be loaded here.
+
+    <div id="userAccessMessage" class="overview-detail" aria-live="polite">
+      The member list will appear here.
+    </div>
+
+    <div id="userAccessMembers">
     </div>
   </div>
 </section>
@@ -859,13 +864,93 @@ function applyChurchTheme(themeKey) {
   }
 }
 
+
+async function loadChurchMembers(churchId) {
+  const message = document.getElementById("userAccessMessage");
+  const container = document.getElementById("userAccessMembers");
+
+  if (!message || !container) return;
+
+  message.textContent = "Loading church members...";
+  container.innerHTML = "";
+
+  const { data: members, error } = await supabaseClient.rpc(
+    "admin_list_church_members",
+    {
+      p_church_id: churchId
+    }
+  );
+
+  if (error) {
+    message.textContent =
+      "We could not load the church member list. Please try again.";
+    return;
+  }
+
+  if (!members || members.length === 0) {
+    message.textContent = "No church members were found.";
+    return;
+  }
+
+  message.textContent = members.length + " church member(s) found.";
+
+  const table = document.createElement("table");
+  table.className = "member-permissions-table";
+
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+
+  ["Email", "Assigned Role", "Status", "Granted Permissions"].forEach(
+    function(title) {
+      const th = document.createElement("th");
+      th.textContent = title;
+      headerRow.appendChild(th);
+    }
+  );
+
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+
+  members.forEach(function(member) {
+    const row = document.createElement("tr");
+
+    const emailCell = document.createElement("td");
+    emailCell.textContent = member.email || "Email unavailable";
+    row.appendChild(emailCell);
+
+    const roleCell = document.createElement("td");
+    roleCell.textContent = member.role.replaceAll("_", " ");
+    row.appendChild(roleCell);
+
+    const statusCell = document.createElement("td");
+    statusCell.textContent = member.status;
+    row.appendChild(statusCell);
+
+    const permissionsCell = document.createElement("td");
+    permissionsCell.textContent =
+      member.permission_codes && member.permission_codes.length
+        ? member.permission_codes.join(", ")
+        : "No additional permissions";
+    row.appendChild(permissionsCell);
+
+    tbody.appendChild(row);
+  });
+
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
 function showDashboard(church, membership) {
   document.getElementById("churchName").textContent = church.name;
+
   const churchInitial = document.getElementById("churchInitial");
 
-if (churchInitial) {
-  churchInitial.textContent = church.name.charAt(0).toUpperCase();
-}
+  if (churchInitial) {
+    churchInitial.textContent = church.name.charAt(0).toUpperCase();
+  }
+
   document.getElementById("accountRole").textContent =
     membership.role.replaceAll("_", " ");
 
@@ -876,12 +961,14 @@ if (churchInitial) {
     const logo = document.createElement("img");
     logo.src = church.church_logo_url;
     logo.alt = church.name + " logo";
+
     logo.onerror = function() {
       logoWrap.innerHTML = "";
       const initial = document.createElement("span");
       initial.textContent = church.name.charAt(0).toUpperCase();
       logoWrap.appendChild(initial);
     };
+
     logoWrap.appendChild(logo);
   } else {
     const initial = document.createElement("span");
@@ -889,14 +976,32 @@ if (churchInitial) {
     logoWrap.appendChild(initial);
   }
 
+  // Show User Access Management only to the Church Administrator.
+  const isChurchAdmin = membership.role === "church_admin";
+
+  const userAccessNavLink =
+    document.getElementById("userAccessNavLink");
+
+  const userAccessSection =
+    document.getElementById("userAccess");
+
+  if (userAccessNavLink) {
+    userAccessNavLink.classList.toggle("hidden", !isChurchAdmin);
+  }
+
+  if (userAccessSection) {
+    userAccessSection.classList.toggle("hidden", !isChurchAdmin);
+  }
+if (isChurchAdmin) {
+  loadChurchMembers(church.id);
+}
   applyChurchTheme(church.theme_key || "forest_green");
+
   loginSection.classList.add("hidden");
   dashboardSection.classList.remove("hidden");
   statusMessage.textContent = "";
   statusMessage.className = "message";
 }
-
-
 async function verifyChurchAccess(user) {
   showMessage("Verifying your church access...", "success");
 
