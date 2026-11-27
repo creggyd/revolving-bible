@@ -782,28 +782,57 @@ body.theme-charcoal-gold {
 
       </section>
 
+
 <section class="hidden" id="userAccess">
   <div class="section-heading">
     <div>
       <h2>User Access Management</h2>
-      <p>Manage the individual access permissions granted to members of your church.</p>
+      <p>Search for a church member to review and manage their individual access permissions.</p>
     </div>
     <span class="section-tag">CHURCH ADMINISTRATOR</span>
   </div>
 
   <div class="overview-card">
-    <h3>Church Members</h3>
+    <h3>Find a Church Member</h3>
     <p>
-      Review church members, their assigned roles, membership status
-      and individual access permissions.
+      Search using the member's display name or email address.
+      Select a matching member to view their account details.
     </p>
 
-    <div id="userAccessMessage" class="overview-detail" aria-live="polite">
-      The member list will appear here.
+    <div class="form-group">
+      <label for="memberSearch">Member Name or Email</label>
+      <input
+        type="search"
+        id="memberSearch"
+        placeholder="Start typing a member's name or email..."
+        autocomplete="off"
+      >
     </div>
 
-    <div id="userAccessMembers">
+    <div
+      id="memberSearchResults"
+      class="hidden"
+      aria-live="polite"
+    ></div>
+
+    <div
+      id="userAccessMessage"
+      class="overview-detail"
+      aria-live="polite"
+    >
+      Enter a member's name or email to begin searching.
     </div>
+  </div>
+
+  <div
+    class="overview-card hidden"
+    id="selectedMemberDetails"
+  >
+    <h3>Selected Member Account</h3>
+
+    <div id="selectedMemberProfile"></div>
+
+    <div id="selectedMemberPermissions"></div>
   </div>
 </section>
       <div class="bottom-note">
