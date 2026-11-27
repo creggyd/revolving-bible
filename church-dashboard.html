@@ -894,14 +894,27 @@ function applyChurchTheme(themeKey) {
 }
 
 
+
 async function loadChurchMembers(churchId) {
   const message = document.getElementById("userAccessMessage");
-  const container = document.getElementById("userAccessMembers");
+  const searchInput = document.getElementById("memberSearch");
+  const resultsContainer = document.getElementById("memberSearchResults");
+  const detailsContainer = document.getElementById("selectedMemberDetails");
+  const profileContainer = document.getElementById("selectedMemberProfile");
+  const permissionsContainer = document.getElementById("selectedMemberPermissions");
 
-  if (!message || !container) return;
+  if (
+    !message ||
+    !searchInput ||
+    !resultsContainer ||
+    !detailsContainer ||
+    !profileContainer ||
+    !permissionsContainer
+  ) return;
 
   message.textContent = "Loading church members...";
-  container.innerHTML = "";
+  resultsContainer.replaceChildren();
+  detailsContainer.classList.add("hidden");
 
   const { data: members, error } = await supabaseClient.rpc(
     "admin_list_church_members",
@@ -912,7 +925,7 @@ async function loadChurchMembers(churchId) {
 
   if (error) {
     message.textContent =
-      "We could not load the church member list. Please try again.";
+      "We could not load church members. Please refresh and try again.";
     return;
   }
 
@@ -921,56 +934,114 @@ async function loadChurchMembers(churchId) {
     return;
   }
 
-  message.textContent = members.length + " church member(s) found.";
+  message.textContent =
+    members.length + " church member(s) available. Search to find a member.";
 
-  const table = document.createElement("table");
-  table.className = "member-permissions-table";
+  function displayMemberDetails(member) {
+    profileContainer.replaceChildren();
+    permissionsContainer.replaceChildren();
 
-  const thead = document.createElement("thead");
-  const headerRow = document.createElement("tr");
+    const fields = [
+      ["Display Name", member.display_name || "Not yet assigned"],
+      ["Email", member.email || "Email unavailable"],
+      ["Assigned Role", member.role || "Not available"],
+      ["Membership Status", member.status || "Not available"]
+    ];
 
-  ["Email", "Assigned Role", "Status", "Granted Permissions"].forEach(
-    function(title) {
-      const th = document.createElement("th");
-      th.textContent = title;
-      headerRow.appendChild(th);
+    fields.forEach(function(field) {
+      const item = document.createElement("p");
+      const label = document.createElement("strong");
+
+      label.textContent = field[0] + ": ";
+      item.appendChild(label);
+      item.appendChild(document.createTextNode(field[1]));
+
+      profileContainer.appendChild(item);
+    });
+
+    const heading = document.createElement("h4");
+    heading.textContent = "Currently Granted Permissions";
+    permissionsContainer.appendChild(heading);
+
+    const permissionCodes = Array.isArray(member.permission_codes)
+      ? member.permission_codes
+      : [];
+
+    if (permissionCodes.length === 0) {
+      const empty = document.createElement("p");
+      empty.textContent = "No additional permissions have been granted.";
+      permissionsContainer.appendChild(empty);
+    } else {
+      const list = document.createElement("ul");
+
+      permissionCodes.forEach(function(code) {
+        const item = document.createElement("li");
+        item.textContent = code;
+        list.appendChild(item);
+      });
+
+      permissionsContainer.appendChild(list);
     }
-  );
 
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
+    detailsContainer.classList.remove("hidden");
+    message.textContent = "Member account selected.";
+  }
 
-  const tbody = document.createElement("tbody");
+  searchInput.addEventListener("input", function() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
 
-  members.forEach(function(member) {
-    const row = document.createElement("tr");
+    resultsContainer.replaceChildren();
+    detailsContainer.classList.add("hidden");
 
-    const emailCell = document.createElement("td");
-    emailCell.textContent = member.email || "Email unavailable";
-    row.appendChild(emailCell);
+    if (!searchTerm) {
+      resultsContainer.classList.add("hidden");
+      message.textContent =
+        members.length + " church member(s) available. Search to find a member.";
+      return;
+    }
 
-    const roleCell = document.createElement("td");
-    roleCell.textContent = member.role.replaceAll("_", " ");
-    row.appendChild(roleCell);
+    const matches = members.filter(function(member) {
+      const name = (member.display_name || "").toLowerCase();
+      const email = (member.email || "").toLowerCase();
 
-    const statusCell = document.createElement("td");
-    statusCell.textContent = member.status;
-    row.appendChild(statusCell);
+      return name.includes(searchTerm) || email.includes(searchTerm);
+    });
 
-    const permissionsCell = document.createElement("td");
-    permissionsCell.textContent =
-      member.permission_codes && member.permission_codes.length
-        ? member.permission_codes.join(", ")
-        : "No additional permissions";
-    row.appendChild(permissionsCell);
+    if (matches.length === 0) {
+      resultsContainer.classList.remove("hidden");
+      const empty = document.createElement("p");
+      empty.textContent = "No matching church members found.";
+      resultsContainer.appendChild(empty);
+      message.textContent = "No matching members.";
+      return;
+    }
 
-    tbody.appendChild(row);
+    resultsContainer.classList.remove("hidden");
+
+    matches.slice(0, 10).forEach(function(member) {
+      const result = document.createElement("button");
+      result.type = "button";
+      result.className = "member-search-result";
+
+      const name = member.display_name || "Name not assigned";
+      const email = member.email || "Email unavailable";
+
+      result.textContent = name + " — " + email;
+
+      result.addEventListener("click", function() {
+        searchInput.value = name;
+        resultsContainer.replaceChildren();
+        resultsContainer.classList.add("hidden");
+        displayMemberDetails(member);
+      });
+
+      resultsContainer.appendChild(result);
+    });
+
+    message.textContent =
+      matches.length + " matching member(s) found.";
   });
-
-  table.appendChild(tbody);
-  container.appendChild(table);
 }
-
 function showDashboard(church, membership) {
   document.getElementById("churchName").textContent = church.name;
 
