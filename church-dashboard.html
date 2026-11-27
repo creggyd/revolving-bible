@@ -683,9 +683,9 @@ body.theme-charcoal-gold {
       <a class="nav-link" href="#study">
         <span class="nav-icon">📚</span> Weekly Scripture Study
       </a>
-      <a class="nav-link" href="#members">
-        <span class="nav-icon">👥</span> Members & Permissions
-      </a>
+      <a class="nav-link hidden" href="#userAccess" id="userAccessNavLink">
+  <span class="nav-icon">🔐</span> User Access Management
+</a>
       <a class="nav-link" href="church-branding.html">
         <span class="nav-icon">🎨</span> Appearance & Branding
       </a>
@@ -781,7 +781,26 @@ body.theme-charcoal-gold {
         </article>
 
       </section>
+<section class="hidden" id="userAccess">
+  <div class="section-heading">
+    <div>
+      <h2>User Access Management</h2>
+      <p>Manage the individual access permissions granted to members of your church.</p>
+    </div>
+    <span class="section-tag">CHURCH ADMINISTRATOR</span>
+  </div>
 
+  <div class="overview-card">
+    <h3>Member Permissions</h3>
+    <p>
+      Select a church member to review, grant or revoke access to specific
+      dashboard functions.
+    </p>
+    <div class="overview-detail">
+      Member access controls will be loaded here.
+    </div>
+  </div>
+</section>
       <div class="bottom-note">
         <strong>Revolving Bible:</strong>
         Your central digital workspace for Scripture, church services,
@@ -877,6 +896,7 @@ if (churchInitial) {
   statusMessage.className = "message";
 }
 
+
 async function verifyChurchAccess(user) {
   showMessage("Verifying your church access...", "success");
 
@@ -916,10 +936,18 @@ async function verifyChurchAccess(user) {
 
   const membership = memberships[0];
 
-  if (membership.role !== "church_admin") {
+  // Verify dashboard access through the secure Supabase function.
+  // Church Administrators are automatically authorised by that function.
+  const { data: hasDashboardAccess, error: permissionError } =
+    await supabaseClient.rpc("has_church_permission", {
+      p_church_id: membership.church_id,
+      p_permission_code: "dashboard.access"
+    });
+
+  if (permissionError || hasDashboardAccess !== true) {
     showLogin();
     showMessage(
-      "Your account is recognised, but this administrator dashboard is not available for your assigned role.",
+      "Your account is recognised, but you have not been granted access to this dashboard. Please contact your Church Administrator.",
       "error"
     );
     return;
@@ -943,7 +971,6 @@ async function verifyChurchAccess(user) {
 
   showDashboard(church, membership);
 }
-
 async function checkExistingSession() {
   const { data, error } = await supabaseClient.auth.getSession();
 
